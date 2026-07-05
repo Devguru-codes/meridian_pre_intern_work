@@ -8,7 +8,10 @@
 
 > **[▶ View Interactive Prototype](https://devguru-codes.github.io/meridian_pre_intern_work/)**
 
+> **[🎥 Watch Demo Video](https://drive.google.com/file/d/1pQp-cEh_uGtGRS6SxAJQxjv31sh0vKFX/view?usp=sharing)**
+
 Interactive high-fidelity prototype built to validate the proposed user experience. The prototype focuses on product workflows and UI rather than backend implementation.
+
 ---
 
 ## 📋 Assignment Overview
@@ -26,16 +29,16 @@ The objective was to evaluate whether Meridian should build a Board Management m
 | 1 | **Product Thesis** | [`Product thesis.docx`](./Product%20thesis.docx) | Core problem framing — why board management is broken and Meridian's unique position |
 | 2 | **Market & User Research** | [`Research 1 - Market, Users & Pain Points.docx`](./Research%201%20-%20Market%2C%20Users%20%26%20Pain%20Points.docx) | Deep-dive into startup board governance, user segments, and validated pain points |
 | 3 | **Competitive & GTM Research** | [`Research 2 - Product, Competition & GTM.docx`](./Research%202%20-%20Product%2C%20Competition%20%26%20GTM.docx) | Competitive landscape (Diligent, BoardPro, Carta, Visible.vc) + go-to-market strategy |
-| 4 | **Pain Points Analysis** | [`Pain Points.docx`](./Pain%20Points.docx) | Structured pain point matrix with evidence, root causes, and Meridian opportunities |
-| 5 | **High Value Use Cases** | [`High Value Use Cases_Final.docx`](./High%20Value%20Use%20Cases_Final.docx) | 8 high-impact use cases mapped across the full board lifecycle |
-| 6 | **Prioritization Matrix** | [`Prioritization Matrix.docx`](./Prioritization%20Matrix.docx) | Impact vs. Engineering Effort framework — P1/P2/P3 feature prioritization |
-| 7 | **User Journey** | [`User Journey.docx`](./User%20Journey.docx) | End-to-end founder journey from scheduling a meeting to follow-up, surfacing every pain point |
-| 8 | **Product Roadmap (V1/V2/V3)** | [`Roadmap (V1,V2,V3).docx`](./Roadmap%20%28V1%2CV2%2CV3%29.docx) | Phased roadmap: Foundation → Execution → Strategic AI |
-| 9 | **PRD for V1 (MVP)** | [`PRD.docx`](./PRD.docx) | Full product requirements — problem, goals, user stories, functional/non-functional requirements, success metrics |
-| 10 | **Build vs. Buy Analysis** | [`Build vs Buy.docx`](./Build%20vs%20Buy.docx) | Reuse / Build / Integrate strategy leveraging Meridian's shared context layer |
-| 11 | **UI Prototype (HTML)** | [`index.html`](./index.html) | Full clickable prototype — live on GitHub Pages ⬆️ |
-| 12 | **UI Prototype (Folder)** | [`Meridian_prototype/`](./Meridian_prototype/) | Secondary prototype — dashboard with JS |
-| 13 | **Presentation** | [`Meridian_Board_Management_Prototype.pptx`](./Meridian_Board_Management_Prototype.pptx) | Slide deck walkthrough |
+| 4 | **Competitor Analysis (Deep)** | [`Competitor analysis (Deep).docx`](./Competitor%20analysis%20%28Deep%29.docx) | In-depth teardown of key competitors — feature gaps, positioning, and differentiation opportunities |
+| 5 | **Pain Points Analysis** | [`Pain Points.docx`](./Pain%20Points.docx) | Structured pain point matrix with evidence, root causes, and Meridian opportunities |
+| 6 | **High Value Use Cases** | [`High Value Use Cases_Final.docx`](./High%20Value%20Use%20Cases_Final.docx) | 8 high-impact use cases mapped across the full board lifecycle |
+| 7 | **Prioritization Matrix** | [`Prioritization Matrix.docx`](./Prioritization%20Matrix.docx) | Impact vs. Engineering Effort framework — P1/P2/P3 feature prioritization |
+| 8 | **User Journey** | [`User Journey.docx`](./User%20Journey.docx) | End-to-end founder journey from scheduling a meeting to follow-up, surfacing every pain point |
+| 9 | **Product Roadmap (V1/V2/V3)** | [`Roadmap (V1,V2,V3).docx`](./Roadmap%20%28V1%2CV2%2CV3%29.docx) | Phased roadmap: Foundation → Execution → Strategic AI |
+| 10 | **PRD for V1 (MVP)** | [`PRD.docx`](./PRD.docx) | Full product requirements — problem, goals, user stories, functional/non-functional requirements, success metrics |
+| 11 | **Build vs. Buy Analysis** | [`Build vs Buy.docx`](./Build%20vs%20Buy.docx) | Reuse / Build / Integrate strategy leveraging Meridian's shared context layer |
+| 12 | **UI Prototype** | [`Meridian_prototype/`](./Meridian_prototype/) | Interactive high-fidelity prototype — live on GitHub Pages |
+| 13 | **Demo Video** | [▶ Google Drive](https://drive.google.com/file/d/1pQp-cEh_uGtGRS6SxAJQxjv31sh0vKFX/view?usp=sharing) | Walkthrough recording of the full prototype flow |
 
 ---
 
