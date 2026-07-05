@@ -1,0 +1,1843 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  @keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:.35} }
+  @keyframes chipIn { from{opacity:0; transform:translateY(4px)} to{opacity:1; transform:translateY(0)} }
+  @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+  * { box-sizing: border-box; }
+  body { margin:0; -webkit-font-smoothing:antialiased; }
+  ::-webkit-scrollbar { width:8px; height:8px; }
+  ::-webkit-scrollbar-thumb { background:rgba(0,0,0,.12); border-radius:8px; }
+</style>
+</helmet>
+
+<div style="display:flex; height:100vh; width:100%; background:oklch(98.5% 0.004 90); font-family:'Inter',system-ui,sans-serif; color:oklch(20% 0.01 260); overflow:hidden;" data-screen-label="{{ rootScreenLabel }}">
+
+  <!-- LEFT NAV -->
+  <div style="width:clamp(184px, 15vw, 232px); flex:none; border-right:1px solid oklch(90% 0.005 90); display:flex; flex-direction:column; padding:20px 14px; gap:4px; background:oklch(99% 0.003 90);">
+    <div style="display:flex; align-items:center; gap:9px; padding:6px 8px 18px;">
+      <div style="width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg, {{ accent }}, {{ accentDark }}); flex:none;"></div>
+      <div style="font-family:'Inter Tight',sans-serif; font-weight:700; font-size:15px; letter-spacing:-0.01em;">Meridian</div>
+    </div>
+
+    <div style="padding:8px 8px 6px; font-size:11px; font-weight:600; color:oklch(55% 0.01 260); text-transform:uppercase; letter-spacing:.06em;">Workspace</div>
+    <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="4">
+      <div onClick="{{ item.onClick }}" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; cursor:pointer; font-size:13.5px; font-weight:500; color:{{ item.activeColor }}; background:{{ item.activeBg }};">
+        <span style="width:16px; height:16px; flex:none; display:flex; align-items:center; justify-content:center; opacity:{{ item.iconOpacity }};" dangerouslySetInnerHTML="{{ item.iconHtml }}"></span>
+        <span>{{ item.label }}</span>
+        <sc-if value="{{ item.badge }}"><span style="margin-left:auto; font-size:10.5px; font-weight:700; color:{{ accent }}; background:{{ accentTint }}; padding:1px 6px; border-radius:20px;">{{ item.badge }}</span></sc-if>
+      </div>
+    </sc-for>
+
+    <div style="margin-top:auto; display:flex; align-items:center; gap:9px; padding:10px 8px; border-top:1px solid oklch(91% 0.005 90); margin-top:12px; padding-top:14px;">
+      <div style="width:28px; height:28px; border-radius:50%; background:oklch(30% 0.02 260); color:#fff; font-size:12px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">AC</div>
+      <div style="min-width:0;">
+        <div style="font-size:12.5px; font-weight:600; line-height:1.3;">Alex Chen</div>
+        <div style="font-size:11px; color:oklch(55% 0.01 260); line-height:1.3;">Founder &amp; CEO</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div style="flex:1; min-width:0; overflow:hidden; display:flex; flex-direction:column;">
+  <sc-if value="{{ showStandardScroll }}">
+  <div style="flex:1; min-width:0; overflow-x:hidden; overflow-y:auto; padding:36px 44px 24px;">
+
+    <sc-if value="{{ isDashboard }}" hint-placeholder-val="{{ true }}">
+    <div style="max-width:760px; margin:0 auto; min-width:0;">
+
+      <!-- Daily Brief -->
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:20px 22px; margin-bottom:20px; box-shadow:0 1px 2px rgba(0,0,0,.03);">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+          <div style="display:flex; align-items:center; gap:8px; min-width:0;">
+            <span style="width:16px; height:16px; flex:none;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+            <div style="font-family:'Inter Tight',sans-serif; font-size:clamp(16px, 1.6vw, 18px); font-weight:700; letter-spacing:-0.01em;">Meridian Daily Brief</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px; padding:7px 12px; border:1px solid oklch(90% 0.005 90); border-radius:9px; font-size:12.5px; color:oklch(45% 0.01 260); white-space:nowrap; flex-shrink:0;">
+            <span style="width:6px; height:6px; border-radius:50%; background:{{ accent }}; flex:none;"></span>
+            Synced 2 min ago
+          </div>
+        </div>
+        <div style="font-size:13.5px; line-height:1.6; color:oklch(32% 0.01 260); margin-bottom:14px;">{{ briefSummary }}</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:14px;">
+          <div>
+            <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Since last meeting · Jun 12</div>
+            <sc-for list="{{ briefChanges }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:oklch(30% 0.01 260); padding:4px 0;">
+                <span style="width:5px; height:5px; border-radius:50%; background:#22C55E; margin-top:6px; flex:none;"></span>
+                <span style="flex:1; min-width:0;">{{ c }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div>
+            <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Needs your attention</div>
+            <sc-for list="{{ briefAttention }}" as="a" hint-placeholder-count="3">
+              <div style="display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:oklch(30% 0.01 260); padding:4px 0;">
+                <span style="width:5px; height:5px; border-radius:50%; background:oklch(55% 0.16 35); margin-top:6px; flex:none;"></span>
+                <span style="flex:1; min-width:0;">{{ a }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming meeting hero -->
+      <div style="position:relative; border-radius:16px; background:oklch(21% 0.03 262); color:#fff; padding:26px 28px; margin-bottom:20px; overflow:hidden;">
+        <div style="position:absolute; inset:0; background:radial-gradient(600px 200px at 85% -10%, oklch(45% 0.09 262 / 0.55), transparent 60%);"></div>
+        <div style="position:relative; display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap;">
+          <div style="min-width:260px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:12px; font-weight:600; color:oklch(80% 0.02 262); text-transform:uppercase; letter-spacing:.05em;">
+              <span style="width:6px; height:6px; border-radius:50%; background:#5EEAD4; animation:pulseDot 2s ease-in-out infinite;"></span>
+              Upcoming board meeting
+            </div>
+            <div style="font-family:'Inter Tight',sans-serif; font-size:clamp(18px, 1.8vw, 21px); font-weight:700; margin-top:8px; letter-spacing:-0.01em;">Q3 Board Meeting</div>
+            <div style="font-size:13.5px; color:oklch(78% 0.02 262); margin-top:5px; overflow-wrap:break-word;">Friday, July 18 · 10:00 AM · {{ daysUntil }} days away</div>
+            <div style="display:flex; align-items:center; gap:6px; margin-top:16px;">
+              <div style="display:flex;">
+                <sc-for list="{{ attendees }}" as="p" hint-placeholder-count="3">
+                  <div style="width:26px; height:26px; border-radius:50%; background:{{ p.color }}; border:2px solid oklch(21% 0.03 262); color:#fff; font-size:10.5px; font-weight:600; display:flex; align-items:center; justify-content:center; margin-left:-7px;">{{ p.initials }}</div>
+                </sc-for>
+              </div>
+              <span style="font-size:12px; color:oklch(75% 0.02 262); margin-left:6px;">3 board members</span>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; align-items:flex-end; gap:10px;">
+            <button onClick="{{ goToPrep }}" style="border:none; cursor:pointer; background:#fff; color:oklch(21% 0.03 262); font-weight:600; font-size:13.5px; padding:10px 18px; border-radius:9px; display:flex; align-items:center; gap:8px; white-space:nowrap; flex-shrink:0;" style-hover="background:oklch(93% 0.005 90);">
+              <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIcon }}"></span>
+              Prepare Meeting
+            </button>
+            <div style="display:flex; align-items:center; gap:7px; background:oklch(28% 0.03 262); padding:6px 10px; border-radius:8px; animation:chipIn .4s ease;">
+              <span style="width:12px; height:12px; opacity:.85;" dangerouslySetInnerHTML="{{ sparkleIconSm }}"></span>
+              <span style="font-size:11.5px; color:oklch(88% 0.02 262);">Board pack 60% ready — 3 metrics need review</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Board Readiness -->
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px 22px; margin-bottom:16px; box-shadow:0 1px 2px rgba(0,0,0,.03);">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
+          <div style="font-size:13.5px; font-weight:600;">Board Readiness</div>
+          <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
+            <div style="width:76px; height:6px; border-radius:20px; background:oklch(93% 0.005 90); overflow:hidden;">
+              <div style="height:100%; width:{{ readinessOverall }}%; background:{{ accent }}; border-radius:20px;"></div>
+            </div>
+            <span style="font-size:12.5px; font-weight:700; color:{{ accent }};">{{ readinessOverall }}%</span>
+          </div>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
+          <sc-for list="{{ readinessRows }}" as="r" hint-placeholder-count="4">
+            <div style="min-width:0;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:6px;">
+                <span style="font-weight:500; color:oklch(30% 0.01 260);">{{ r.label }}</span>
+                <span style="font-weight:600; color:{{ r.color }}; white-space:nowrap;">{{ r.pct }}%</span>
+              </div>
+              <div style="width:100%; height:6px; border-radius:20px; background:oklch(93% 0.005 90); overflow:hidden;">
+                <div style="height:100%; width:{{ r.pct }}%; background:{{ r.color }}; border-radius:20px;"></div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- Two column: decisions + actions -->
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:16px; margin-bottom:16px;">
+
+        <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px 18px 8px; box-shadow:0 1px 2px rgba(0,0,0,.03); min-width:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px;">
+            <div style="font-size:13.5px; font-weight:600;">Pending Decisions</div>
+            <span style="font-size:11px; font-weight:600; color:{{ accent }}; background:{{ accentTint }}; padding:2px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0;">{{ decisions.length }} open</span>
+          </div>
+          <sc-for list="{{ decisions }}" as="d" hint-placeholder-count="3">
+            <div style="padding:11px 0; border-top:1px solid oklch(93% 0.005 90);">
+              <div style="display:flex; align-items:center; justify-content:between; justify-content:space-between; gap:8px;">
+                <div style="font-size:13px; font-weight:500;">{{ d.title }}</div>
+                <span style="font-size:10.5px; font-weight:600; color:{{ d.statusColor }}; background:{{ d.statusBg }}; padding:2px 7px; border-radius:20px; white-space:nowrap;">{{ d.status }}</span>
+              </div>
+              <div style="font-size:11.5px; color:oklch(52% 0.01 260); margin-top:3px;">{{ d.meta }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px 18px 8px; box-shadow:0 1px 2px rgba(0,0,0,.03); min-width:0;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:12px;">
+            <div style="font-size:13.5px; font-weight:600;">Open Action Items</div>
+            <span style="font-size:11px; font-weight:600; color:oklch(50% 0.14 35); background:oklch(94% 0.04 35); padding:2px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0;">2 overdue</span>
+          </div>
+          <sc-for list="{{ actionItems }}" as="a" hint-placeholder-count="3">
+            <div style="padding:11px 0; border-top:1px solid oklch(93% 0.005 90); display:flex; align-items:flex-start; gap:9px;">
+              <div style="width:15px; height:15px; border-radius:5px; border:1.5px solid {{ a.checkColor }}; margin-top:1.5px; flex:none;"></div>
+              <div style="min-width:0;">
+                <div style="font-size:13px; font-weight:500;">{{ a.title }}</div>
+                <div style="font-size:11.5px; color:{{ a.dueColor }}; margin-top:3px;">{{ a.owner }} · {{ a.due }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- AI Insights ambient row -->
+      <sc-if value="{{ showInsights }}" hint-placeholder-val="{{ true }}">
+      <div style="margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:7px; margin-bottom:10px;">
+          <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+          <span style="font-size:12px; font-weight:600; color:oklch(45% 0.01 260); text-transform:uppercase; letter-spacing:.04em;">AI Insights</span>
+        </div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ insights }}" as="i" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:7px; background:{{ accentTint }}; border:1px solid {{ accentBorder }}; padding:7px 12px; border-radius:20px; font-size:12px; color:oklch(30% 0.02 260); animation:chipIn .35s ease;">
+              <span style="width:5px; height:5px; border-radius:50%; background:{{ accent }}; flex:none;"></span>
+              {{ i.text }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Strategic topics -->
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px;">
+        <div style="font-size:13.5px; font-weight:600; margin-bottom:12px;">Suggested Topics for July 18</div>
+        <div style="display:flex; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ topics }}" as="t" hint-placeholder-count="4">
+            <div style="font-size:12.5px; font-weight:500; padding:7px 13px; border-radius:9px; background:oklch(97% 0.004 90); border:1px solid oklch(92% 0.005 90); color:oklch(30% 0.01 260);">{{ t }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isPrep }}">
+    <div style="max-width:860px; margin:0 auto; min-width:0;">
+
+      <button onClick="{{ goToDashboard }}" style="border:none; background:none; cursor:pointer; display:flex; align-items:center; gap:6px; font-size:12.5px; color:oklch(50% 0.01 260); padding:6px 4px; margin-bottom:14px; align-self:flex-start;">
+        <span style="width:11px; height:11px;" dangerouslySetInnerHTML="{{ backIcon }}"></span>
+        Back to Dashboard
+      </button>
+
+      <div style="margin-bottom:6px;">
+        <div style="font-family:'Inter Tight',sans-serif; font-size:clamp(19px, 2vw, 24px); font-weight:700; letter-spacing:-0.015em;">AI Board Preparation</div>
+        <div style="font-size:13px; color:oklch(50% 0.01 260); margin-top:4px;">Preparing Q3 Board Meeting · Friday, July 18</div>
+      </div>
+
+      <!-- Step tracker -->
+      <div style="display:flex; align-items:center; margin:20px 0 22px;">
+        <sc-for list="{{ prepSteps }}" as="s" hint-placeholder-count="5">
+          <div onClick="{{ s.onClick }}" style="display:flex; align-items:center; gap:6px; cursor:pointer; flex:1; min-width:0;">
+            <div style="width:22px; height:22px; border-radius:50%; flex:none; display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; background:{{ s.bg }}; color:{{ s.fg }}; border:1.5px solid {{ s.border }};">
+              <sc-if value="{{ s.done }}"><span style="width:11px; height:11px;" dangerouslySetInnerHTML="{{ checkIconSm }}"></span></sc-if>
+              <sc-if value="{{ s.notDone }}">{{ s.n }}</sc-if>
+            </div>
+            <div style="font-size:clamp(10px, 1.3vw, 11.5px); font-weight:600; color:{{ s.labelColor }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{ s.label }}</div>
+            <sc-if value="{{ s.showLine }}"><div style="flex:none; width:12px; height:1.5px; background:{{ s.lineColor }}; margin:0 2px;"></div></sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <!-- Step 1: Gathering -->
+      <sc-if value="{{ isStep1 }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:22px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="width:16px; height:16px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+          <div style="font-size:15px; font-weight:700;">Gathering Company Context</div>
+        </div>
+        <div style="font-size:12.5px; color:oklch(52% 0.01 260); margin-bottom:14px;">Pulling from Finance, HR, Product, CRM and Institutional Memory…</div>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ gatheringItems }}" as="g" hint-placeholder-count="10">
+            <div style="padding:10px 4px; border-top:1px solid oklch(94% 0.005 90);">
+              <div style="display:flex; align-items:center; gap:11px;">
+                <span style="width:17px; height:17px; flex:none; display:flex; align-items:center; justify-content:center;" dangerouslySetInnerHTML="{{ g.icon }}"></span>
+                <div style="flex:1; min-width:0; font-size:13px; font-weight:500;">{{ g.label }}</div>
+                <div style="font-size:11px; color:oklch(52% 0.01 260); white-space:nowrap;">{{ g.source }}</div>
+                <div style="font-size:11px; font-weight:600; color:{{ g.statusColor }}; white-space:nowrap; min-width:92px; text-align:right;">{{ g.statusLabel }}</div>
+              </div>
+              <sc-if value="{{ g.showReason }}">
+                <div style="margin:6px 0 0 28px; padding:8px 11px; background:oklch(98% 0.004 90); border-radius:8px; font-size:11.5px; line-height:1.5; color:oklch(38% 0.01 260);">
+                  <span style="font-weight:600; color:oklch(30% 0.01 260);">Reason:</span> {{ g.reason }} <span style="font-weight:600; color:oklch(30% 0.01 260); margin-left:6px;">Recommendation:</span> {{ g.recommendation }}
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Step 2: AI Analysis -->
+      <sc-if value="{{ isStep2 }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:22px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="width:16px; height:16px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+          <div style="font-size:15px; font-weight:700;">AI Analysis</div>
+        </div>
+        <div style="font-size:12.5px; color:oklch(52% 0.01 260); margin-bottom:14px;">What changed since June 12, and what the board should focus on.</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <sc-for list="{{ analysisItems }}" as="a" hint-placeholder-count="4">
+            <div style="border:1px solid oklch(92% 0.005 90); border-radius:11px; padding:13px 15px; background:oklch(99% 0.003 90);">
+              <div style="font-size:13px; line-height:1.55; color:oklch(25% 0.01 260);">{{ a.text }}</div>
+              <span style="display:inline-block; margin-top:8px; font-size:10.5px; font-weight:600; color:{{ accent }}; background:{{ accentTint }}; padding:2px 8px; border-radius:20px;">Source: {{ a.source }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+          <button onClick="{{ goStep3 }}" style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:600; font-size:13px; padding:10px 18px; border-radius:9px;">Build Agenda →</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Step 3: Agenda -->
+      <sc-if value="{{ isStep3 }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:22px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:4px;">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="width:16px; height:16px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+            <div style="font-size:15px; font-weight:700;">Generated Agenda</div>
+          </div>
+          <button onClick="{{ addAgendaItem }}" style="border:1px solid oklch(89% 0.005 90); background:#fff; cursor:pointer; font-size:12px; font-weight:600; padding:6px 12px; border-radius:8px; color:oklch(35% 0.01 260); white-space:nowrap;">+ Add topic</button>
+        </div>
+        <div style="font-size:12.5px; color:oklch(52% 0.01 260); margin-bottom:14px;">Editable — rename or remove any topic before sending.</div>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <sc-for list="{{ agendaItems }}" as="ag" hint-placeholder-count="5">
+            <div style="border:1px solid oklch(92% 0.005 90); border-radius:11px; padding:13px 15px; display:flex; gap:12px; align-items:flex-start;">
+              <div style="width:22px; height:22px; border-radius:6px; background:{{ accentTint }}; color:{{ accent }}; font-size:11px; font-weight:700; display:flex; align-items:center; justify-content:center; flex:none; margin-top:2px;">{{ ag.n }}</div>
+              <div style="flex:1; min-width:0;">
+                <input value="{{ ag.title }}" onChange="{{ ag.onTitleChange }}" style="width:100%; border:none; outline:none; font-size:13.5px; font-weight:600; font-family:'Inter',sans-serif; color:oklch(20% 0.01 260); background:transparent; padding:2px 0;"></input>
+                <div style="font-size:12px; color:oklch(52% 0.01 260); margin-top:4px; line-height:1.5;">Why: {{ ag.reason }}</div>
+              </div>
+              <div onClick="{{ ag.onRemove }}" style="width:22px; height:22px; border-radius:6px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:oklch(60% 0.01 260); flex:none; font-size:13px;">✕</div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+          <button onClick="{{ goStep4 }}" style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:600; font-size:13px; padding:10px 18px; border-radius:9px;">Draft Board Pack →</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Step 4: Board Pack -->
+      <sc-if value="{{ isStep4 }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:22px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
+          <span style="width:16px; height:16px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+          <div style="font-size:15px; font-weight:700;">Draft Board Pack</div>
+        </div>
+        <div style="font-size:12.5px; color:oklch(52% 0.01 260); margin-bottom:14px;">7 sections generated. Review confidence and sources before sending.</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(250px, 1fr)); gap:12px;">
+          <sc-for list="{{ boardPackCards }}" as="bp" hint-placeholder-count="7">
+            <div style="border:1px solid oklch(92% 0.005 90); border-radius:12px; padding:14px 15px; min-width:0;">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px;">
+                <div style="font-size:13px; font-weight:700;">{{ bp.title }}</div>
+                <span style="font-size:9.5px; font-weight:700; color:{{ accent }}; background:{{ accentTint }}; padding:2px 7px; border-radius:20px; white-space:nowrap;">AI generated</span>
+              </div>
+              <div style="font-size:12px; color:oklch(40% 0.01 260); line-height:1.5; margin-bottom:10px;">{{ bp.snippet }}</div>
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:10.5px; color:oklch(52% 0.01 260); margin-bottom:8px;">
+                <span>Source: {{ bp.source }}</span>
+                <span>{{ bp.updated }}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:7px; margin-bottom:10px;">
+                <div style="flex:1; height:5px; border-radius:20px; background:oklch(93% 0.005 90); overflow:hidden;">
+                  <div style="height:100%; width:{{ bp.confidence }}%; background:{{ bp.confColor }}; border-radius:20px;"></div>
+                </div>
+                <span style="font-size:10.5px; font-weight:600; color:{{ bp.confColor }}; white-space:nowrap;">{{ bp.confidence }}%</span>
+              </div>
+              <button onClick="{{ bp.onToggle }}" style="border:1px solid oklch(89% 0.005 90); background:#fff; cursor:pointer; font-size:11.5px; font-weight:600; padding:6px 11px; border-radius:7px; color:oklch(35% 0.01 260); width:100%;">{{ bp.toggleLabel }}</button>
+              <sc-if value="{{ bp.expanded }}">
+                <textarea value="{{ bp.draftText }}" onChange="{{ bp.onDraftChange }}" style="width:100%; margin-top:9px; min-height:70px; font-size:12px; font-family:'Inter',sans-serif; border:1px solid oklch(90% 0.005 90); border-radius:8px; padding:8px 10px; color:oklch(25% 0.01 260); resize:vertical; box-sizing:border-box;"></textarea>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex; justify-content:flex-end; margin-top:16px;">
+          <button onClick="{{ goStep5 }}" style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:600; font-size:13px; padding:10px 18px; border-radius:9px;">Check Readiness →</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Step 5: Readiness -->
+      <sc-if value="{{ isStep5 }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:22px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin-bottom:16px;">
+          <div style="position:relative; width:80px; height:80px; flex:none;">
+            <svg viewBox="0 0 100 100" width="80" height="80" style="transform:rotate(-90deg);">
+              <circle cx="50" cy="50" r="42" fill="none" stroke="oklch(93% 0.005 90)" stroke-width="9"></circle>
+              <circle cx="50" cy="50" r="42" fill="none" stroke="{{ accent }}" stroke-width="9" stroke-linecap="round" stroke-dasharray="264" stroke-dashoffset="{{ readinessDashOffset }}"></circle>
+            </svg>
+            <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:17px; font-weight:800;">{{ prepReadinessScore }}%</div>
+          </div>
+          <div style="min-width:220px; flex:1;">
+            <div style="font-size:15px; font-weight:700;">Board Readiness</div>
+            <div style="font-size:12.5px; color:oklch(52% 0.01 260); margin-top:4px; line-height:1.5;">Everything is ready except hiring metrics — a quick founder review is recommended before sending.</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ prepReadinessRows }}" as="pr" hint-placeholder-count="7">
+            <div style="display:flex; align-items:center; gap:11px; padding:9px 4px; border-top:1px solid oklch(94% 0.005 90);">
+              <span style="width:15px; height:15px; flex:none;" dangerouslySetInnerHTML="{{ pr.icon }}"></span>
+              <div style="flex:1; min-width:0; font-size:13px; font-weight:500;">{{ pr.label }}</div>
+              <div style="font-size:11.5px; color:{{ pr.color }}; font-weight:600; white-space:nowrap;">{{ pr.note }}</div>
+              <sc-if value="{{ pr.actionable }}">
+                <button onClick="{{ goStep4 }}" style="border:none; background:none; cursor:pointer; font-size:11.5px; font-weight:600; color:{{ accent }}; white-space:nowrap;">Review now →</button>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <!-- Draft Board Pack preview (compact) -->
+      <sc-if value="{{ showBoardPackPreview }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px 20px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:2px;">
+          <div style="font-size:13.5px; font-weight:700;">Draft Board Pack</div>
+          <span style="font-size:10.5px; font-weight:600; color:{{ accent }}; background:{{ accentTint }}; padding:2px 8px; border-radius:20px; white-space:nowrap;">Generated by AI</span>
+        </div>
+        <div style="font-size:11.5px; color:oklch(52% 0.01 260); margin-bottom:8px;">7 sections · last synced 2 min ago</div>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ boardPackPreviewRows }}" as="bpr" hint-placeholder-count="7">
+            <div style="display:flex; align-items:center; gap:10px; padding:8px 2px; border-top:1px solid oklch(94% 0.005 90);">
+              <span style="width:15px; height:15px; flex:none;" dangerouslySetInnerHTML="{{ bpr.icon }}"></span>
+              <div style="flex:1; min-width:0; font-size:12.5px; font-weight:500;">{{ bpr.title }}</div>
+              <div style="font-size:10.5px; color:oklch(52% 0.01 260); white-space:nowrap;">{{ bpr.source }}</div>
+              <div style="font-size:10.5px; color:oklch(52% 0.01 260); white-space:nowrap;">{{ bpr.updated }}</div>
+              <div style="font-size:11px; font-weight:600; color:{{ bpr.color }}; white-space:nowrap; min-width:104px; text-align:right;">{{ bpr.status }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+    </sc-if>
+
+    <sc-if value="{{ isMemory }}">
+    <div style="max-width:900px; margin:0 auto; min-width:0;">
+
+      <div style="margin-bottom:22px;">
+        <div style="font-family:'Inter Tight',sans-serif; font-size:clamp(20px, 2.2vw, 26px); font-weight:700; letter-spacing:-0.015em;">Institutional Memory</div>
+        <div style="font-size:13.5px; color:oklch(50% 0.01 260); margin-top:5px;">Every board decision preserved, connected, and continuously updated.</div>
+      </div>
+
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:8px 8px 8px 18px; display:flex; align-items:center; gap:10px; box-shadow:0 1px 2px rgba(0,0,0,.03); margin-bottom:14px;">
+        <span style="width:18px; height:18px; flex:none; opacity:.5;" dangerouslySetInnerHTML="{{ searchIcon }}"></span>
+        <input value="{{ memoryQuery }}" onChange="{{ onMemoryInputChange }}" onKeyDown="{{ onMemoryInputKeyDown }}" placeholder="Ask Meridian anything about your company's board history…" style="border:none; outline:none; flex:1; font-size:14.5px; font-family:'Inter',sans-serif; min-width:0; padding:10px 0;"></input>
+        <button onClick="{{ runMemorySearchFromInput }}" style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:600; font-size:13px; padding:10px 18px; border-radius:9px; white-space:nowrap; flex-shrink:0;">Ask</button>
+      </div>
+
+      <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:24px;">
+        <sc-for list="{{ memoryChipItems }}" as="mc" hint-placeholder-count="5">
+          <div onClick="{{ mc.onClick }}" style="font-size:12.5px; font-weight:500; padding:8px 14px; border-radius:20px; background:{{ accentTint }}; color:oklch(28% 0.02 260); cursor:pointer; border:1px solid {{ accentBorder }};">{{ mc.label }}</div>
+        </sc-for>
+      </div>
+
+      <sc-if value="{{ showMemoryEmpty }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:22px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+          <span style="width:16px; height:16px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+          <div style="font-size:14.5px; font-weight:700;">I couldn't find an exact match.</div>
+        </div>
+        <div style="font-size:13px; color:oklch(40% 0.01 260); line-height:1.6; margin-bottom:16px;">However, I found three related discussions that may answer your question:</div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ memoryEmptyRelated }}" as="er" hint-placeholder-count="3">
+            <div onClick="{{ er.onClick }}" style="border:1px solid oklch(91% 0.005 90); border-radius:10px; padding:11px 14px; cursor:pointer;">
+              <div style="font-size:13px; font-weight:600; color:oklch(25% 0.01 260);">{{ er.title }}</div>
+              <div style="font-size:11.5px; color:oklch(52% 0.01 260); margin-top:3px;">{{ er.meta }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ showMemoryList }}">
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px 18px 8px; margin-bottom:16px;">
+        <div style="font-size:13.5px; font-weight:700; margin-bottom:12px;">Unresolved Board Decisions</div>
+        <sc-for list="{{ memoryUnresolvedRows }}" as="ur" hint-placeholder-count="3">
+          <div onClick="{{ ur.onClick }}" style="padding:11px 0; border-top:1px solid oklch(93% 0.005 90); cursor:pointer;">
+            <div style="font-size:13.5px; font-weight:600;">{{ ur.title }}</div>
+            <div style="font-size:11.5px; color:oklch(52% 0.01 260); margin-top:3px;">{{ ur.meta }}</div>
+          </div>
+        </sc-for>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ showMemoryDecision }}">
+      <div style="background:oklch(21% 0.03 262); color:#fff; border-radius:14px; padding:20px 24px; margin-bottom:16px;">
+        <div style="font-size:11px; font-weight:600; color:oklch(80% 0.02 262); text-transform:uppercase; letter-spacing:.05em;">{{ memoryResult.meeting }} · {{ memoryResult.date }}</div>
+        <div style="font-family:'Inter Tight',sans-serif; font-size:clamp(17px, 1.9vw, 21px); font-weight:700; margin-top:6px; letter-spacing:-0.01em;">{{ memoryResult.decision }}</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(230px, 1fr)); gap:12px; margin-bottom:16px;">
+        <sc-for list="{{ memoryAnswerCards }}" as="ac" hint-placeholder-count="8">
+          <div style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:12px; padding:14px 16px; min-width:0;">
+            <div style="font-size:10.5px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;">{{ ac.label }}</div>
+            <sc-if value="{{ ac.isText }}"><div style="font-size:12.5px; line-height:1.55; color:oklch(26% 0.01 260);">{{ ac.value }}</div></sc-if>
+            <sc-if value="{{ ac.isQuote }}"><div style="font-size:12.5px; line-height:1.55; color:oklch(26% 0.01 260); font-style:italic;">{{ ac.value }}</div></sc-if>
+            <sc-if value="{{ ac.isStatus }}"><span style="display:inline-block; font-size:11.5px; font-weight:600; color:{{ accent }}; background:{{ accentTint }}; padding:3px 10px; border-radius:20px;">{{ ac.value }}</span></sc-if>
+            <sc-if value="{{ ac.isList }}">
+              <div style="display:flex; flex-direction:column; gap:5px;">
+                <sc-for list="{{ ac.list }}" as="li" hint-placeholder-count="2">
+                  <div style="font-size:12px; line-height:1.5; color:oklch(28% 0.01 260); padding-left:10px; position:relative;">
+                    <span style="position:absolute; left:0;">·</span>{{ li }}
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:20px 22px; margin-bottom:16px;">
+        <div style="font-size:13.5px; font-weight:700; margin-bottom:16px;">Decision → Execution Timeline</div>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ memoryTimeline }}" as="tl" hint-placeholder-count="7">
+            <div style="display:flex; gap:14px;">
+              <div style="display:flex; flex-direction:column; align-items:center; flex:none;">
+                <div style="width:22px; height:22px; border-radius:50%; background:{{ tl.dotBg }}; border:1.5px solid {{ tl.dotBorder }}; display:flex; align-items:center; justify-content:center; flex:none;">
+                  <sc-if value="{{ tl.isDone }}"><span style="width:11px; height:11px;" dangerouslySetInnerHTML="{{ checkIconSm }}"></span></sc-if>
+                </div>
+                <sc-if value="{{ tl.showConnector }}"><div style="width:1.5px; flex:1; min-height:22px; background:{{ tl.connectorColor }};"></div></sc-if>
+              </div>
+              <div style="padding-bottom:18px; min-width:0; flex:1;">
+                <div style="font-size:13px; font-weight:700; color:{{ tl.titleColor }};">{{ tl.stage }}</div>
+                <div style="font-size:11.5px; color:oklch(52% 0.01 260); margin-top:2px;">{{ tl.date }} · {{ tl.owner }}</div>
+                <div style="font-size:11.5px; color:oklch(45% 0.01 260); margin-top:3px;">{{ tl.evidence }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:20px 22px; margin-bottom:16px;">
+        <div style="font-size:13.5px; font-weight:700; margin-bottom:14px;">Execution Progress</div>
+        <div style="display:flex; flex-direction:column;">
+          <sc-for list="{{ memoryTracker }}" as="et" hint-placeholder-count="3">
+            <div style="padding:12px 0; border-top:1px solid oklch(93% 0.005 90);">
+              <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+                <div style="font-size:13px; font-weight:600;">{{ et.task }}</div>
+                <span style="font-size:10px; font-weight:700; color:{{ et.priorityColor }}; background:{{ et.priorityBg }}; padding:2px 8px; border-radius:20px; white-space:nowrap;">{{ et.priority }}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; font-size:11.5px; color:oklch(52% 0.01 260); margin-bottom:8px;">
+                <span>Owner: {{ et.owner }}</span>
+                <span>Due: {{ et.due }}</span>
+                <span style="font-weight:600; color:{{ et.statusColor }};">{{ et.status }}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <div style="flex:1; height:6px; border-radius:20px; background:oklch(93% 0.005 90); overflow:hidden;">
+                  <div style="height:100%; width:{{ et.progress }}%; background:{{ et.statusColor }}; border-radius:20px;"></div>
+                </div>
+                <span style="font-size:11px; font-weight:600; color:{{ et.statusColor }}; white-space:nowrap;">{{ et.progress }}%</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:20px 22px; margin-bottom:16px;">
+        <div style="font-size:13.5px; font-weight:700; margin-bottom:14px;">Related Knowledge</div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:11px;">
+          <sc-for list="{{ memoryRelatedKnowledge }}" as="rk2" hint-placeholder-count="4">
+            <div style="border:1px solid oklch(91% 0.005 90); border-radius:10px; padding:11px 13px; min-width:0;">
+              <div style="font-size:10px; font-weight:700; color:{{ accent }}; text-transform:uppercase; letter-spacing:.04em; margin-bottom:5px;">{{ rk2.type }}</div>
+              <div style="font-size:12.5px; font-weight:600; color:oklch(25% 0.01 260); line-height:1.4;">{{ rk2.title }}</div>
+              <div style="font-size:11px; color:oklch(52% 0.01 260); margin-top:3px;">{{ rk2.meta }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:16px 18px; margin-bottom:16px;">
+        <div style="display:flex; align-items:center; gap:7px; margin-bottom:10px;">
+          <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+          <span style="font-size:12px; font-weight:600; color:oklch(45% 0.01 260); text-transform:uppercase; letter-spacing:.04em;">AI Insights</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <sc-for list="{{ memoryInsights }}" as="mi" hint-placeholder-count="3">
+            <div style="display:flex; align-items:flex-start; gap:8px; font-size:12.5px; color:oklch(30% 0.01 260); line-height:1.5;">
+              <span style="width:5px; height:5px; border-radius:50%; background:{{ accent }}; margin-top:6px; flex:none;"></span>
+              <span style="flex:1; min-width:0;">{{ mi }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:20px 22px;">
+        <div style="font-size:13.5px; font-weight:700; margin-bottom:14px;">Organizational Memory Graph</div>
+        <div style="display:flex; align-items:center; flex-wrap:wrap; gap:8px;">
+          <sc-for list="{{ memoryGraphNodes }}" as="gn" hint-placeholder-count="5">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div style="font-size:12.5px; font-weight:600; padding:9px 15px; border-radius:9px; background:oklch(97% 0.004 90); border:1px solid oklch(91% 0.005 90); color:oklch(28% 0.01 260); white-space:nowrap;">{{ gn.label }}</div>
+              <sc-if value="{{ gn.showArrow }}"><span style="color:oklch(65% 0.01 260); font-size:14px;">→</span></sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      </sc-if>
+
+    </div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isMeeting }}">
+  <div style="flex:none; padding:14px 28px; border-bottom:1px solid oklch(90% 0.005 90); display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+    <div style="display:flex; align-items:center; gap:9px;">
+      <span style="width:9px; height:9px; border-radius:50%; background:#EF4444; animation:pulseDot 1.4s ease-in-out infinite; flex:none;"></span>
+      <div style="font-size:14px; font-weight:700;">Meridian is Listening</div>
+      <div style="font-size:12px; color:oklch(52% 0.01 260); margin-left:4px;">Q3 Board Meeting · {{ meetingElapsedLabel }}</div>
+    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap;">
+      <sc-for list="{{ listeningStates }}" as="ls" hint-placeholder-count="4">
+        <div style="display:flex; align-items:center; gap:6px; font-size:11.5px; font-weight:600; padding:6px 12px; border-radius:20px; background:{{ ls.bg }}; color:{{ ls.color }}; white-space:nowrap;">
+          <span style="width:5px; height:5px; border-radius:50%; background:{{ ls.dotColor }}; flex:none; animation:{{ ls.animation }};"></span>
+          {{ ls.label }}
+        </div>
+      </sc-for>
+    </div>
+  </div>
+
+  <div style="flex:1; min-height:0; display:flex; overflow:hidden;">
+
+    <!-- Meeting info panel -->
+    <div style="width:clamp(200px, 20vw, 264px); flex:none; border-right:1px solid oklch(90% 0.005 90); overflow-y:auto; padding:20px 18px; min-width:0;">
+      <div style="font-family:'Inter Tight',sans-serif; font-size:16px; font-weight:700; letter-spacing:-0.01em; margin-bottom:2px;">Meeting Agenda</div>
+      <div style="font-size:11.5px; color:oklch(52% 0.01 260); margin-bottom:14px;">Tap a topic to jump</div>
+      <div style="display:flex; flex-direction:column; gap:3px; margin-bottom:20px;">
+        <sc-for list="{{ meetingAgendaRows }}" as="ag" hint-placeholder-count="5">
+          <div onClick="{{ ag.onClick }}" style="display:flex; align-items:center; gap:9px; padding:9px 10px; border-radius:9px; cursor:pointer; background:{{ ag.bg }};">
+            <span style="width:16px; height:16px; flex:none; display:flex; align-items:center; justify-content:center;" dangerouslySetInnerHTML="{{ ag.icon }}"></span>
+            <div style="font-size:12.5px; font-weight:{{ ag.weight }}; color:{{ ag.color }};">{{ ag.title }}</div>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="border-top:1px solid oklch(92% 0.005 90); padding-top:16px; margin-bottom:20px;">
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Currently discussing</div>
+        <div style="background:{{ accentTint }}; border-radius:10px; padding:11px 12px;">
+          <div style="font-size:13px; font-weight:700; color:oklch(22% 0.02 260);">{{ currentTopicTitle }}</div>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid oklch(92% 0.005 90); padding-top:16px; margin-bottom:20px;">
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Participants</div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ meetingParticipants }}" as="p" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <div style="width:26px; height:26px; border-radius:50%; background:{{ p.color }}; color:#fff; font-size:10.5px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">{{ p.initials }}</div>
+              <div style="min-width:0;">
+                <div style="font-size:12px; font-weight:600; line-height:1.3;">{{ p.name }}</div>
+                <div style="font-size:10.5px; color:oklch(55% 0.01 260); line-height:1.3;">{{ p.role }}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid oklch(92% 0.005 90); padding-top:16px;">
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Upcoming</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <sc-for list="{{ upcomingTopics }}" as="ut" hint-placeholder-count="2">
+            <div style="font-size:12px; color:oklch(45% 0.01 260);">{{ ut }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center: live meeting workspace -->
+    <div style="flex:1; min-width:0; overflow-y:auto; padding:22px 28px 32px;">
+      <div style="max-width:680px; margin:0 auto;">
+
+        <div style="display:flex; flex-direction:column; gap:14px; margin-bottom:20px;">
+          <sc-for list="{{ transcriptEvents }}" as="ev" hint-placeholder-count="6">
+
+            <sc-if value="{{ ev.isLine }}">
+              <div style="display:flex; gap:10px; align-items:flex-start;">
+                <div style="width:28px; height:28px; border-radius:50%; background:{{ ev.avatarColor }}; color:#fff; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center; flex:none;">{{ ev.initials }}</div>
+                <div style="min-width:0; flex:1;">
+                  <div style="display:flex; align-items:baseline; gap:7px;">
+                    <span style="font-size:12.5px; font-weight:700;">{{ ev.speaker }}</span>
+                    <span style="font-size:10.5px; color:oklch(58% 0.01 260);">{{ ev.role }}</span>
+                    <span style="font-size:10.5px; color:oklch(65% 0.01 260); margin-left:auto;">{{ ev.time }}</span>
+                  </div>
+                  <div style="font-size:13px; line-height:1.55; color:oklch(28% 0.01 260); margin-top:2px;">{{ ev.text }}</div>
+                </div>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ev.isDecision }}">
+              <div style="border:1.5px solid {{ ev.borderColor }}; background:{{ ev.cardBg }}; border-radius:13px; padding:15px 17px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px;">
+                  <div style="display:flex; align-items:center; gap:7px;">
+                    <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+                    <span style="font-size:11px; font-weight:700; color:{{ accent }}; text-transform:uppercase; letter-spacing:.04em;">Decision Detected</span>
+                  </div>
+                  <span style="font-size:10.5px; font-weight:700; color:{{ ev.confColor }};">{{ ev.confidence }}% confidence</span>
+                </div>
+                <div style="font-size:14.5px; font-weight:700; color:oklch(20% 0.01 260); margin-bottom:9px;">{{ ev.title }}</div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(90px, 1fr)); gap:10px; margin-bottom:11px;">
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Owner</div><div style="font-size:12.5px; font-weight:600;">{{ ev.owner }}</div></div>
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Due Date</div><div style="font-size:12.5px; font-weight:600;">{{ ev.due }}</div></div>
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Source</div><div style="font-size:12.5px; font-weight:600;">{{ ev.source }}</div></div>
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Status</div><div style="font-size:12.5px; font-weight:600; color:{{ ev.statusColor }};">{{ ev.statusLabel }}</div></div>
+                </div>
+                <sc-if value="{{ ev.showEditor }}">
+                  <textarea value="{{ ev.note }}" onChange="{{ ev.onNoteChange }}" style="width:100%; min-height:60px; font-size:12px; font-family:'Inter',sans-serif; border:1px solid oklch(90% 0.005 90); border-radius:8px; padding:8px 10px; color:oklch(25% 0.01 260); resize:vertical; box-sizing:border-box; margin-bottom:10px;"></textarea>
+                </sc-if>
+                <sc-if value="{{ ev.showActions }}">
+                  <div style="display:flex; gap:8px;">
+                    <button onClick="{{ ev.onApprove }}" style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:600; font-size:12px; padding:7px 14px; border-radius:8px;">Approve</button>
+                    <button onClick="{{ ev.onEdit }}" style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-weight:600; font-size:12px; padding:7px 14px; border-radius:8px; color:oklch(30% 0.01 260);">Edit</button>
+                    <button onClick="{{ ev.onDiscard }}" style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-weight:600; font-size:12px; padding:7px 14px; border-radius:8px; color:oklch(48% 0.14 30);">Discard</button>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ev.isAction }}">
+              <div style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:13px; padding:14px 17px;">
+                <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:9px;">
+                  <span style="font-size:11px; font-weight:700; color:oklch(45% 0.01 260); text-transform:uppercase; letter-spacing:.04em;">Action Item Detected</span>
+                  <span style="font-size:10px; font-weight:700; color:{{ ev.priorityColor }}; background:{{ ev.priorityBg }}; padding:2px 8px; border-radius:20px;">{{ ev.priority }} priority</span>
+                </div>
+                <div style="font-size:14px; font-weight:700; color:oklch(20% 0.01 260); margin-bottom:9px;">{{ ev.title }}</div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(90px, 1fr)); gap:10px; margin-bottom:11px;">
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Owner</div><div style="font-size:12.5px; font-weight:600;">{{ ev.owner }}</div></div>
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Due Date</div><div style="font-size:12.5px; font-weight:600;">{{ ev.due }}</div></div>
+                  <div style="min-width:0;"><div style="font-size:10.5px; color:oklch(55% 0.01 260); margin-bottom:2px;">Status</div><div style="font-size:12.5px; font-weight:600; color:{{ ev.statusColor }};">{{ ev.statusLabel }}</div></div>
+                </div>
+                <sc-if value="{{ ev.showConfirm }}">
+                  <button onClick="{{ ev.onConfirm }}" style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:600; font-size:12px; padding:7px 14px; border-radius:8px;">Confirm</button>
+                </sc-if>
+              </div>
+            </sc-if>
+
+            <sc-if value="{{ ev.isAnswer }}">
+              <div style="border:1.5px solid {{ accent }}; background:{{ accentTint }}; border-radius:13px; padding:16px 18px;">
+                <div style="display:flex; align-items:center; gap:7px; margin-bottom:12px;">
+                  <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+                  <span style="font-size:12px; font-weight:700; color:{{ accent }};">Meridian answered instantly</span>
+                </div>
+                <div style="display:flex; flex-direction:column; gap:9px;">
+                  <sc-for list="{{ ev.fields }}" as="fl" hint-placeholder-count="7">
+                    <div>
+                      <div style="font-size:10.5px; font-weight:600; color:oklch(50% 0.01 260); text-transform:uppercase; letter-spacing:.04em; margin-bottom:2px;">{{ fl.label }}</div>
+                      <div style="font-size:12.5px; line-height:1.5; color:oklch(24% 0.01 260); font-weight:{{ fl.weight }};">{{ fl.value }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+
+          </sc-for>
+        </div>
+
+        <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:18px 20px;">
+          <div style="display:flex; align-items:center; gap:7px; margin-bottom:12px;">
+            <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+            <div style="font-size:13.5px; font-weight:700;">Meeting Summary</div>
+            <span style="font-size:10px; font-weight:600; color:oklch(50% 0.01 260); background:oklch(95% 0.005 90); padding:2px 8px; border-radius:20px; margin-left:2px;">Updating live</span>
+          </div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:16px;">
+            <div>
+              <div style="font-size:10.5px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;">Key Decisions</div>
+              <sc-for list="{{ summaryDecisions }}" as="sd2" hint-placeholder-count="1"><div style="font-size:12px; color:oklch(28% 0.01 260); padding:3px 0;">{{ sd2 }}</div></sc-for>
+              <sc-if value="{{ summaryDecisionsEmpty }}"><div style="font-size:11.5px; color:oklch(62% 0.01 260); font-style:italic;">None yet</div></sc-if>
+            </div>
+            <div>
+              <div style="font-size:10.5px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;">Open Questions</div>
+              <sc-for list="{{ summaryOpenQuestions }}" as="oq" hint-placeholder-count="1"><div style="font-size:12px; color:oklch(28% 0.01 260); padding:3px 0;">{{ oq }}</div></sc-for>
+            </div>
+            <div>
+              <div style="font-size:10.5px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;">Risks</div>
+              <sc-for list="{{ summaryRisks }}" as="rk" hint-placeholder-count="1"><div style="font-size:12px; color:oklch(48% 0.14 35); padding:3px 0;">{{ rk }}</div></sc-for>
+            </div>
+            <div>
+              <div style="font-size:10.5px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;">Action Items</div>
+              <sc-for list="{{ summaryActions }}" as="sa" hint-placeholder-count="1"><div style="font-size:12px; color:oklch(28% 0.01 260); padding:3px 0;">{{ sa }}</div></sc-for>
+              <sc-if value="{{ summaryActionsEmpty }}"><div style="font-size:11.5px; color:oklch(62% 0.01 260); font-style:italic;">None yet</div></sc-if>
+            </div>
+            <div>
+              <div style="font-size:10.5px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:7px;">Pending Votes</div>
+              <sc-for list="{{ summaryPendingVotes }}" as="pv" hint-placeholder-count="1"><div style="font-size:12px; color:oklch(28% 0.01 260); padding:3px 0;">{{ pv }}</div></sc-for>
+              <sc-if value="{{ summaryPendingEmpty }}"><div style="font-size:11.5px; color:oklch(62% 0.01 260); font-style:italic;">None pending</div></sc-if>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+  </sc-if>
+
+  <sc-if value="{{ isPrep }}">
+  <div style="flex:none; padding:12px 44px 16px; background:oklch(98.5% 0.004 90); border-top:1px solid oklch(90% 0.005 90);">
+    <div style="max-width:860px; margin:0 auto; display:flex; flex-wrap:wrap; gap:8px;">
+      <button onClick="{{ goStep4 }}" style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:9px; color:oklch(30% 0.01 260); white-space:nowrap;">Review Board Pack</button>
+      <button onClick="{{ goStep3 }}" style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:9px; color:oklch(30% 0.01 260); white-space:nowrap;">Edit Agenda</button>
+      <button style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:9px; color:oklch(30% 0.01 260); white-space:nowrap;">Assign Review</button>
+      <button style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:9px; color:oklch(30% 0.01 260); white-space:nowrap;">Generate PDF</button>
+      <button style="border:1px solid oklch(88% 0.005 90); background:#fff; cursor:pointer; font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:9px; color:oklch(30% 0.01 260); white-space:nowrap;">Schedule Meeting</button>
+      <button style="border:none; cursor:pointer; background:{{ accent }}; color:#fff; font-weight:700; font-size:12.5px; padding:9px 16px; border-radius:9px; white-space:nowrap; margin-left:auto;">Share With Board</button>
+    </div>
+  </div>
+  </sc-if>
+
+  </div>
+
+  <!-- RIGHT: Ask Meridian, persistent -->
+  <div style="width:clamp(272px, 22vw, 352px); flex:none; border-left:1px solid oklch(90% 0.005 90); background:oklch(99% 0.003 90); display:flex; flex-direction:column; min-width:0;">
+    <div style="padding:18px 18px 14px; border-bottom:1px solid oklch(91% 0.005 90); display:flex; align-items:center; gap:9px;">
+      <div style="width:28px; height:28px; border-radius:8px; background:linear-gradient(135deg, {{ accent }}, {{ accentDark }}); display:flex; align-items:center; justify-content:center; flex:none;">
+        <span style="width:14px; height:14px;" dangerouslySetInnerHTML="{{ sparkleIconWhite }}"></span>
+      </div>
+      <div>
+        <div style="font-size:13.5px; font-weight:700;">Meridian AI</div>
+        <div style="font-size:11px; color:oklch(55% 0.01 260); display:flex; align-items:center; gap:5px;">
+          <span style="width:5px; height:5px; border-radius:50%; background:#22C55E;"></span>
+          {{ sidebarSubtitle }}
+        </div>
+      </div>
+    </div>
+
+    <div style="flex:1; overflow-y:auto; padding:16px 16px 8px; display:flex; flex-direction:column; gap:14px;">
+
+      <sc-if value="{{ isMeeting }}">
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Live suggestions</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ liveSuggestions }}" as="ls2" hint-placeholder-count="2">
+            <div style="display:flex; align-items:flex-start; gap:7px; background:{{ accentTint }}; border:1px solid {{ accentBorder }}; border-radius:9px; padding:8px 10px; font-size:12px; color:oklch(28% 0.02 260); line-height:1.45;">
+              <span style="width:5px; height:5px; border-radius:50%; background:{{ accent }}; margin-top:5px; flex:none;"></span>
+              <span style="flex:1; min-width:0;">{{ ls2 }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Recent context</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ meetingRecentContext }}" as="rc" hint-placeholder-count="2">
+            <div onClick="{{ rc.onClick }}" style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:9px; padding:9px 11px; cursor:pointer;">
+              <div style="font-size:12px; font-weight:600; color:oklch(25% 0.01 260); line-height:1.4;">{{ rc.title }}</div>
+              <div style="font-size:11px; color:oklch(52% 0.01 260); margin-top:3px;">{{ rc.meta }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Supporting documents</div>
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <sc-for list="{{ meetingSupportingDocs }}" as="doc" hint-placeholder-count="3">
+            <div style="display:flex; align-items:center; gap:8px; font-size:12px; color:oklch(30% 0.01 260); border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:8px; padding:7px 10px;">
+              <span style="width:13px; height:13px; flex:none;" dangerouslySetInnerHTML="{{ doc.icon }}"></span>
+              <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ doc.name }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Suggested answers</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <sc-for list="{{ meetingQuickPrompts }}" as="mq" hint-placeholder-count="5">
+            <div onClick="{{ mq.onClick }}" style="font-size:11.5px; padding:6px 10px; border-radius:20px; border:1px solid oklch(89% 0.005 90); background:#fff; color:oklch(38% 0.01 260); cursor:pointer;">{{ mq.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="height:1px; background:oklch(91% 0.005 90); flex:none;"></div>
+      </sc-if>
+
+      <sc-if value="{{ isMemory }}">
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Suggested prompts</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ memorySidebarPrompts }}" as="mp" hint-placeholder-count="5">
+            <div onClick="{{ mp.onClick }}" style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:9px; padding:9px 11px; cursor:pointer; font-size:12px; color:oklch(28% 0.01 260); line-height:1.45;">{{ mp.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="height:1px; background:oklch(91% 0.005 90); flex:none;"></div>
+      </sc-if>
+
+      <sc-if value="{{ isPrep }}">
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Live findings</div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          <sc-for list="{{ prepFindings }}" as="f" hint-placeholder-count="3">
+            <div style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:9px; padding:9px 11px;">
+              <div style="font-size:12px; line-height:1.5; color:oklch(25% 0.01 260);">{{ f.text }}</div>
+              <span style="display:inline-block; margin-top:6px; font-size:10px; font-weight:600; color:{{ accent }}; background:{{ accentTint }}; padding:1px 7px; border-radius:20px;">{{ f.source }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Ask about this prep</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <sc-for list="{{ prepQuickPrompts }}" as="pq" hint-placeholder-count="3">
+            <div onClick="{{ pq.onClick }}" style="font-size:11.5px; padding:6px 10px; border-radius:20px; border:1px solid oklch(89% 0.005 90); background:#fff; color:oklch(38% 0.01 260); cursor:pointer;">{{ pq.label }}</div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="height:1px; background:oklch(91% 0.005 90); flex:none;"></div>
+      </sc-if>
+
+      <sc-if value="{{ isDashboard }}">
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Quick shortcuts</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          <sc-for list="{{ quickShortcuts }}" as="q" hint-placeholder-count="4">
+            <div onClick="{{ q.onClick }}" style="display:flex; align-items:center; gap:5px; font-size:11.5px; font-weight:500; padding:6px 10px; border-radius:8px; background:{{ accentTint }}; color:oklch(30% 0.02 260); cursor:pointer;">
+              <span style="width:4px; height:4px; border-radius:50%; background:{{ accent }}; flex:none;"></span>
+              {{ q.label }}
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Recent decisions</div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ recentDecisions }}" as="rd" hint-placeholder-count="3">
+            <div onClick="{{ rd.onClick }}" style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:9px; padding:9px 11px; cursor:pointer;">
+              <div style="font-size:12px; font-weight:600; color:oklch(25% 0.01 260); line-height:1.4;">{{ rd.title }}</div>
+              <div style="font-size:11px; color:oklch(52% 0.01 260); margin-top:3px;">{{ rd.date }} · {{ rd.meta }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div>
+        <div style="font-size:11px; font-weight:600; color:oklch(52% 0.01 260); text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">Previous discussions</div>
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ previousDiscussions }}" as="pd" hint-placeholder-count="2">
+            <div onClick="{{ pd.onClick }}" style="border:1px solid oklch(91% 0.005 90); background:#fff; border-radius:9px; padding:9px 11px; cursor:pointer;">
+              <div style="font-size:12px; font-weight:600; color:oklch(25% 0.01 260); line-height:1.4;">{{ pd.topic }}</div>
+              <div style="font-size:11px; color:oklch(52% 0.01 260); margin-top:3px;">{{ pd.date }} · {{ pd.note }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="height:1px; background:oklch(91% 0.005 90); flex:none;"></div>
+      </sc-if>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <sc-for list="{{ chatMessages }}" as="m" hint-placeholder-count="2">
+          <div style="display:flex; flex-direction:column; align-items:{{ m.align }};">
+            <div style="max-width:88%; font-size:12.5px; line-height:1.5; padding:10px 13px; border-radius:12px; background:{{ m.bg }}; color:{{ m.color }}; white-space:pre-line;">{{ m.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="padding:8px 16px 14px;">
+      <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px;">
+        <sc-for list="{{ suggestedPrompts }}" as="s" hint-placeholder-count="3">
+          <div onClick="{{ s.onClick }}" style="font-size:11.5px; padding:6px 10px; border-radius:20px; border:1px solid oklch(89% 0.005 90); background:#fff; color:oklch(38% 0.01 260); cursor:pointer;">{{ s.label }}</div>
+        </sc-for>
+      </div>
+      <div style="display:flex; align-items:center; gap:8px; border:1px solid oklch(88% 0.005 90); background:#fff; border-radius:11px; padding:9px 10px 9px 14px;">
+        <input value="{{ chatInput }}" onChange="{{ onInputChange }}" onKeyDown="{{ onInputKeyDown }}" placeholder="Ask Meridian anything…" style="border:none; outline:none; flex:1; font-size:12.5px; font-family:'Inter',sans-serif; min-width:0;"></input>
+        <button onClick="{{ sendMessage }}" style="border:none; cursor:pointer; width:26px; height:26px; border-radius:8px; background:{{ accent }}; display:flex; align-items:center; justify-content:center; flex:none;">
+          <span style="width:12px; height:12px;" dangerouslySetInnerHTML="{{ sendIcon }}"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;: {&quot;width&quot;: 1440, &quot;height&quot;: 900}, &quot;accentColor&quot;: {&quot;editor&quot;: &quot;color&quot;, &quot;default&quot;: &quot;#2563EB&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;options&quot;: [&quot;#2563EB&quot;, &quot;#7C3AED&quot;, &quot;#0F766E&quot;, &quot;#111827&quot;]}, &quot;showInsights&quot;: {&quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = {
+    chatInput: '',
+    chatMessages: [
+      { align: 'flex-start', bg: 'oklch(95% 0.006 262)', color: 'oklch(25% 0.02 262)',
+        text: "Morning, Alex. Board meeting is in 13 days. I've drafted 60% of the pack — I still need Q2 churn and the updated hiring plan from you before it's ready." },
+    ],
+    currentScreen: 'dashboard',
+    prepStep: 1,
+    gatheringRevealed: 0,
+    agendaItems: [
+      { id: 1, title: 'Revenue Review', reason: 'MRR grew 6% QoQ — board tracks this every meeting.' },
+      { id: 2, title: 'Enterprise Launch', reason: 'Pending vote; scope was approved last meeting.' },
+      { id: 3, title: 'VP Sales Hiring', reason: 'Search delayed 3 weeks past original plan.' },
+      { id: 4, title: 'AI Pricing Model', reason: 'Investor interest resurfaced this topic from March.' },
+      { id: 5, title: 'International Expansion', reason: 'Tabled last meeting pending unit economics — still open.' },
+    ],
+    agendaNextId: 6,
+    expandedCards: {},
+    cardDrafts: {},
+    meetingElapsed: 0,
+    transcriptRevealed: 0,
+    meetingTopicIndex: 0,
+    listeningIndex: 0,
+    decisionStatus: {},
+    decisionEditing: {},
+    decisionNotes: {},
+    actionStatus: {},
+    memoryQuery: '',
+    memoryResultKey: null,
+  };
+
+  componentDidMount() {
+    this._accent = this.props.accentColor || '#2563EB';
+  }
+
+  // Static SVG icon cache — avoids recreating dangerouslySetInnerHTML objects
+  // (and the string-building work) on every tick of the gathering interval.
+  getIcons(accent) {
+    if (this._iconCache && this._iconCache.accent === accent) return this._iconCache;
+    const sparkle = (color) => ({ __html:
+      '<svg viewBox="0 0 24 24" fill="none" width="100%" height="100%"><path d="M12 2 L14 9 L21 11 L14 13 L12 20 L10 13 L3 11 L10 9 Z" fill="' + color + '"/></svg>' });
+    const checkIcon = (color) => ({ __html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none"><path d="M4 12 L9.5 17.5 L20 5" stroke="' + color + '" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>' });
+    const cache = {
+      accent,
+      sparkleIcon: sparkle(accent),
+      sparkleIconSm: sparkle('#fff'),
+      sparkleIconAccent: sparkle(accent),
+      sparkleIconWhite: sparkle('#fff'),
+      navIcon: { __html: '<svg viewBox="0 0 16 16" width="100%" height="100%"><rect x="1" y="1" width="6" height="6" rx="1.5" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1.5" fill="currentColor" opacity=".45"/><rect x="1" y="9" width="6" height="6" rx="1.5" fill="currentColor" opacity=".45"/><rect x="9" y="9" width="6" height="6" rx="1.5" fill="currentColor"/></svg>' },
+      checkGreen: checkIcon('#22C55E'),
+      checkWhite: checkIcon('#fff'),
+      checkAccent: checkIcon(accent),
+      spinnerIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%" style="animation:spin 0.9s linear infinite;"><circle cx="12" cy="12" r="9" fill="none" stroke="' + accent + '" stroke-width="3" stroke-linecap="round" stroke-dasharray="40 100"/></svg>' },
+      pendingIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="4" fill="oklch(85% 0.005 90)"/></svg>' },
+      warnIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%"><path d="M12 3 L22 20 L2 20 Z" fill="none" stroke="#F59E0B" stroke-width="2.2" stroke-linejoin="round"/><rect x="11" y="9" width="2" height="6" rx="1" fill="#F59E0B"/><rect x="11" y="16.5" width="2" height="2" rx="1" fill="#F59E0B"/></svg>' },
+      backIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none"><path d="M15 5 L7 12 L15 19" stroke="oklch(45% 0.01 260)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+      docIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none"><path d="M6 3h9l4 4v14H6z" stroke="oklch(55% 0.01 260)" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 3v5h5" stroke="oklch(55% 0.01 260)" stroke-width="1.8" stroke-linejoin="round"/></svg>' },
+      searchIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none"><circle cx="11" cy="11" r="7" stroke="oklch(35% 0.01 260)" stroke-width="2"/><path d="M21 21 L16.5 16.5" stroke="oklch(35% 0.01 260)" stroke-width="2" stroke-linecap="round"/></svg>' },
+      currentDotIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="6" fill="' + accent + '"/></svg>' },
+      futureDotIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%"><circle cx="12" cy="12" r="4" fill="oklch(85% 0.005 90)"/></svg>' },
+      sendIcon: { __html: '<svg viewBox="0 0 24 24" width="100%" height="100%" fill="none"><path d="M4 12 L20 4 L14 20 L11 13 L4 12 Z" fill="white"/></svg>' },
+    };
+    this._iconCache = cache;
+    return cache;
+  }
+
+  // Static (state-independent) content — built once, not on every tick.
+  getStaticData() {
+    if (this._staticData) return this._staticData;
+    this._staticData = {
+      decisions: [
+        { title: 'Enterprise Launch', status: 'Needs vote', statusColor: 'oklch(48% 0.15 35)', statusBg: 'oklch(94% 0.04 35)', meta: 'Raised by Alex · targeting July 18' },
+        { title: 'Series B Preparation', status: 'In review', statusColor: 'oklch(50% 0.13 250)', statusBg: 'oklch(94% 0.03 250)', meta: 'Owner: Sarah Kim (Blueprint Ventures)' },
+        { title: 'Marketing Budget Increase', status: 'Draft', statusColor: 'oklch(50% 0.01 260)', statusBg: 'oklch(94% 0.005 90)', meta: '$40K/mo → $65K/mo proposed' },
+      ],
+      actionItems: [
+        { title: 'Finalize enterprise pricing tiers', owner: 'Alex', due: 'Overdue · was due Jul 2', checkColor: 'oklch(55% 0.15 35)', dueColor: 'oklch(50% 0.15 35)' },
+        { title: 'Send updated hiring plan to board', owner: 'Priya (People)', due: 'Overdue · was due Jul 3', checkColor: 'oklch(55% 0.15 35)', dueColor: 'oklch(50% 0.15 35)' },
+        { title: 'Reduce AWS spend by 15%', owner: 'Marcus (Eng)', due: 'Due Jul 16', checkColor: 'oklch(75% 0.01 260)', dueColor: 'oklch(52% 0.01 260)' },
+        { title: 'Draft international expansion memo', owner: 'Alex', due: 'Due Jul 17', checkColor: 'oklch(75% 0.01 260)', dueColor: 'oklch(52% 0.01 260)' },
+      ],
+      insights: [
+        { text: 'Burn rate up 8% QoQ — flagged for board discussion' },
+        { text: '2 action items from last meeting are overdue' },
+        { text: 'Similar topic to March: "AI pricing model" revisited' },
+      ],
+      topics: ['International Expansion', 'Hiring VP Sales', 'AI Pricing Model', 'Burn Reduction'],
+      attendees: [
+        { initials: 'AC', color: '#2563EB' },
+        { initials: 'SK', color: '#7C3AED' },
+        { initials: 'MW', color: '#059669' },
+      ],
+      briefSummary: "Since your last board meeting on June 12, MRR grew to $210K (+6%), NovaFlow closed 4 enterprise deals, and burn increased 8% QoQ. 2 action items are overdue and the AI pricing model decision remains unresolved.",
+      briefChanges: [
+        'MRR grew to $210K, up 6% quarter-over-quarter',
+        'Closed 4 new enterprise deals',
+        'Hired 2 engineers; VP Sales search in final rounds',
+      ],
+      briefAttention: [
+        '2 action items overdue (pricing tiers, hiring plan)',
+        'Burn up 8% QoQ — worth flagging to the board',
+        'AI pricing model decision still pending since March',
+      ],
+      gatheringDef: [
+        { label: 'Revenue Metrics', source: 'Finance Module', final: 'collected',
+          reason: 'MRR increased 6% since the previous board meeting.', recommendation: 'Include in Financial Review.' },
+        { label: 'Burn Rate', source: 'Finance Module', final: 'collected',
+          reason: 'Burn increased 8% QoQ.', recommendation: 'Flag as a strategic discussion topic.' },
+        { label: 'Hiring Updates', source: 'HR Module', final: 'needs_review',
+          reason: 'VP Sales hiring has slipped by 3 weeks.', recommendation: 'Discuss hiring timeline with the board.' },
+        { label: 'Product Roadmap', source: 'Product Module', final: 'collected' },
+        { label: 'Customer KPIs', source: 'CRM', final: 'collected' },
+        { label: 'Financial Runway', source: 'Finance Module', final: 'collected' },
+        { label: 'Previous Board Decisions', source: 'Institutional Memory', final: 'collected' },
+        { label: 'Open Action Items', source: 'Institutional Memory', final: 'collected' },
+        { label: 'Pending Approvals', source: 'Institutional Memory', final: 'collected' },
+        { label: 'Customer NPS', source: 'CRM', final: 'waiting', confidence: 63,
+          reason: 'Waiting for latest survey results.', recommendation: 'Founder review required before final board pack.' },
+      ],
+      boardPackPreview: [
+        { title: 'Executive Summary', status: 'Generated', updated: '2 min ago', source: 'Finance + CRM' },
+        { title: 'Financial Performance', status: 'Generated', updated: '2 min ago', source: 'Finance Module' },
+        { title: 'Hiring & Team Updates', status: 'Needs Review', updated: '6 min ago', source: 'HR Module' },
+        { title: 'Product Roadmap', status: 'Generated', updated: '4 min ago', source: 'Product Module' },
+        { title: 'Strategic Risks', status: 'Updated Recently', updated: '2 min ago', source: 'Finance + Investor Notes' },
+        { title: 'Previous Board Decisions', status: 'Generated', updated: '5 min ago', source: 'Institutional Memory' },
+        { title: 'Open Action Items', status: 'Generated', updated: '5 min ago', source: 'Institutional Memory' },
+      ],
+      stepDefs: [
+        { n: 1, label: 'Gathering' },
+        { n: 2, label: 'Analysis' },
+        { n: 3, label: 'Agenda' },
+        { n: 4, label: 'Board Pack' },
+        { n: 5, label: 'Readiness' },
+      ],
+      analysisItems: [
+        { text: 'Revenue increased 6% but burn rose 8% — recommend discussing hiring pace with the board.', source: 'Finance Module' },
+        { text: '2 action items from the last meeting remain unresolved: enterprise pricing tiers and the updated hiring plan.', source: 'Institutional Memory' },
+        { text: 'The March pricing model discussion may resurface — an investor raised it again in a recent email thread.', source: 'Investor Notes' },
+        { text: 'VP Sales hiring is delayed 3 weeks past the original plan; search is now in final rounds.', source: 'HR Module' },
+      ],
+      boardPackDefs: [
+        { id: 'exec', title: 'Executive Summary', snippet: 'MRR reached $210K (+6% QoQ). Closed 4 enterprise deals; burn up 8% on hiring and infra.', source: 'Finance + CRM', updated: '2 min ago', confidence: 96 },
+        { id: 'fin', title: 'Financials', snippet: 'Runway holds at 18 months at current burn ($156K/mo). Cash on hand: $2.8M.', source: 'Finance Module', updated: '2 min ago', confidence: 94 },
+        { id: 'hiring', title: 'Hiring', snippet: 'VP Sales: 3 candidates in final rounds. Senior ML Engineer: offer stage. Headcount 42.', source: 'HR Module', updated: '6 min ago', confidence: 62 },
+        { id: 'product', title: 'Product', snippet: 'Enterprise tier scope approved. Roadmap on track for Q3 release of usage analytics.', source: 'Product Module', updated: '4 min ago', confidence: 91 },
+        { id: 'risks', title: 'Risks', snippet: 'Burn growth outpacing revenue growth this quarter. Pricing model still unresolved.', source: 'Finance + Investor Notes', updated: '2 min ago', confidence: 88 },
+        { id: 'prev', title: 'Previous Decisions', snippet: 'Approved enterprise tier scope (Jun 12). Rejected usage-based pricing (Mar 14).', source: 'Institutional Memory', updated: '5 min ago', confidence: 99 },
+        { id: 'actions', title: 'Open Actions', snippet: '2 of 4 action items overdue: pricing tiers (Alex), hiring plan (Priya).', source: 'Institutional Memory', updated: '5 min ago', confidence: 97 },
+      ],
+      prepReadinessDefs: [
+        { label: 'Agenda finalized', note: 'Ready', color: '#16A34A', actionable: false },
+        { label: 'Financial metrics reviewed', note: 'Ready', color: '#16A34A', actionable: false },
+        { label: 'Hiring metrics', note: 'Needs founder review', color: '#D97706', actionable: true },
+        { label: 'Product summary', note: 'Ready', color: '#16A34A', actionable: false },
+        { label: 'Risk assessment', note: 'Ready', color: '#16A34A', actionable: false },
+        { label: 'Previous decisions linked', note: 'Ready', color: '#16A34A', actionable: false },
+        { label: 'Approvals routed', note: 'Ready', color: '#16A34A', actionable: false },
+      ],
+      prepFindings: [
+        { text: "I found two unresolved action items from the last meeting.", source: 'Institutional Memory' },
+        { text: "Revenue increased 6% quarter-over-quarter.", source: 'Finance Module' },
+        { text: "Previous discussion about pricing may be relevant to this meeting.", source: 'Investor Notes' },
+      ],
+      meetingAgenda: ['Revenue Review', 'Enterprise Launch', 'VP Sales Hiring', 'AI Pricing Model', 'International Expansion'],
+      listeningLabels: ['Listening', 'Capturing Decisions', 'Monitoring Context', 'Generating Minutes'],
+      meetingParticipants: [
+        { name: 'Alex Chen', role: 'Founder & CEO', initials: 'AC', color: '#2563EB' },
+        { name: 'Sarah Kim', role: 'Lead VC Partner', initials: 'SK', color: '#7C3AED' },
+        { name: 'Marcus Webb', role: 'Independent Director', initials: 'MW', color: '#059669' },
+      ],
+      meetingSupportingDocs: ['Q2 Financial Model.pdf', 'March Board Minutes.pdf', 'Pricing Model Comparison.xlsx', 'Investor Email Thread.eml'],
+      meetingRecentContext: [
+        { title: 'Rejected Pricing Model B (usage-based)', meta: 'March 14 · Owner: Alex' },
+        { title: 'Approved enterprise tier scope', meta: 'June 12 · Board vote 3-0' },
+      ],
+      liveSuggestionDefs: [
+        { text: 'Similar discussion happened during the March Board Meeting.', at: 3 },
+        { text: 'VP Sales hiring delay may affect the Enterprise Launch timeline.', at: 6 },
+        { text: 'Revenue trend has changed since last quarter — worth noting in minutes.', at: 8 },
+        { text: 'International Expansion depends on this pricing decision.', at: 12 },
+      ],
+      meetingScript: [
+        { type: 'line', speaker: 'Alex Chen', role: 'Founder & CEO', initials: 'AC', avatarColor: '#2563EB', time: '00:12',
+          text: "Let's kick off with the revenue review. MRR closed at $210K, up 6% quarter over quarter." },
+        { type: 'line', speaker: 'Marcus Webb', role: 'Independent Director', initials: 'MW', avatarColor: '#059669', time: '00:41',
+          text: "Good progress. How does that compare to plan?" },
+        { type: 'line', speaker: 'Alex Chen', role: 'Founder & CEO', initials: 'AC', avatarColor: '#2563EB', time: '01:02',
+          text: "Slightly ahead of plan — we projected $205K for this quarter." },
+        { type: 'line', speaker: 'Sarah Kim', role: 'Lead VC Partner', initials: 'SK', avatarColor: '#7C3AED', time: '01:30',
+          text: "Nice. Let's move to enterprise launch — where do we stand on pricing?" },
+        { type: 'decision', id: 'dec-pricing', title: 'Approve Enterprise Pricing', owner: 'Product Team', due: 'August 1', confidence: 97, source: 'Live Meeting Transcript' },
+        { type: 'line', speaker: 'Alex Chen', role: 'Founder & CEO', initials: 'AC', avatarColor: '#2563EB', time: '02:15',
+          text: "Great — let's move to hiring. VP Sales search has taken longer than planned." },
+        { type: 'line', speaker: 'Marcus Webb', role: 'Independent Director', initials: 'MW', avatarColor: '#059669', time: '02:38',
+          text: "What's the updated timeline?" },
+        { type: 'line', speaker: 'Alex Chen', role: 'Founder & CEO', initials: 'AC', avatarColor: '#2563EB', time: '02:55',
+          text: "We have 3 candidates in final rounds, aiming to close by August 1." },
+        { type: 'action', id: 'act-hiring-plan', title: 'Prepare revised hiring plan', owner: 'HR', due: 'July 20', priority: 'High' },
+        { type: 'question', speaker: 'Sarah Kim', role: 'Lead VC Partner', initials: 'SK', avatarColor: '#7C3AED', time: '03:40',
+          text: "Quick question — what happened to the AI Pricing Model we discussed in March?",
+          answer: [
+            { label: 'Previous Meeting', value: 'March 14 Board Meeting', weight: 600 },
+            { label: 'Decision Summary', value: 'Rejected Pricing Model B (usage-based pricing)', weight: 700 },
+            { label: 'Reasoning', value: 'Added sales-cycle friction for mid-market deals; enterprise prospects pushed back during diligence.', weight: 400 },
+            { label: 'Who Opposed', value: 'Sarah Kim (Lead VC Partner) raised concerns about revenue predictability.', weight: 400 },
+            { label: 'Current Status', value: 'Tabled indefinitely — flat-tier pricing remains in effect.', weight: 400 },
+            { label: 'Supporting Documents', value: 'March Board Minutes.pdf, Pricing Model Comparison.xlsx', weight: 400 },
+            { label: 'Related Emails', value: 'Thread with Sarah Kim, Mar 18 — "Re: Pricing model concerns"', weight: 400 },
+            { label: 'Owner', value: 'Alex Chen', weight: 600 },
+          ] },
+        { type: 'line', speaker: 'Alex Chen', role: 'Founder & CEO', initials: 'AC', avatarColor: '#2563EB', time: '04:05',
+          text: "Right — we tabled it after mixed feedback. Meridian just confirmed the full context above." },
+        { type: 'decision', id: 'dec-vp-sales', title: 'Approve VP Sales Hiring', owner: 'HR Director', due: 'July 30', confidence: 98, source: 'Live Meeting Transcript' },
+        { type: 'line', speaker: 'Marcus Webb', role: 'Independent Director', initials: 'MW', avatarColor: '#059669', time: '05:20',
+          text: "Let's also flag burn — it's up 8% this quarter. Worth watching before Series B." },
+        { type: 'line', speaker: 'Sarah Kim', role: 'Lead VC Partner', initials: 'SK', avatarColor: '#7C3AED', time: '05:47',
+          text: "Agreed. Let's revisit international expansion next meeting once pricing is locked." },
+      ],
+      memoryChips: [
+        'Why did we reject Pricing Model B?',
+        'Show discussions about international expansion.',
+        'Who owns VP Sales hiring?',
+        'Show unresolved board decisions.',
+        'What happened after Series A board meeting?',
+      ],
+      memoryDB: {
+        pricing: {
+          decision: 'Rejected Pricing Model B (Usage-Based Pricing)',
+          meeting: 'March Board Meeting', date: 'March 14, 2026',
+          summary: 'The board considered switching from flat-tier to usage-based pricing for enterprise accounts. After reviewing sales cycle data and investor feedback, the board voted to reject the change and retain flat-tier pricing.',
+          reasoning: 'Usage-based pricing added forecasting complexity and lengthened enterprise sales cycles by an estimated 3–4 weeks during diligence. Mid-market prospects specifically flagged unpredictable billing as a blocker.',
+          alternatives: 'Tiered flat pricing (kept), hybrid usage + platform fee (rejected), pure usage-based (rejected).',
+          supportedBy: 'Marcus Webb (Independent Director) — favored predictable revenue.',
+          opposedBy: 'Sarah Kim (Lead VC Partner) raised concerns about long-term revenue ceiling under flat pricing.',
+          metrics: 'Enterprise sales cycle: 42 days avg (usage-model estimate: 63 days). Mid-market churn risk: +12% under usage billing (est.).',
+          documents: ['Pricing Model Comparison.xlsx', 'March Board Minutes.pdf', 'Sales Cycle Analysis.pdf'],
+          investorComment: '"I\'d rather we protect our sales velocity than optimize for theoretical revenue upside right now." — Sarah Kim, March 14',
+          emails: 'Thread with Sarah Kim, Mar 18 — "Re: Pricing model concerns"',
+          relatedMeetings: ['June 12 Board Meeting — Approved enterprise tier scope', 'Q3 Board Meeting (upcoming) — AI Pricing Model back on agenda'],
+          linkedTasks: ['Revise Pricing Strategy — Product Team — Completed', 'Update Investor Deck — Founder — Completed'],
+          currentStatus: 'Tabled indefinitely. Flat-tier pricing remains in effect. Topic resurfacing for the Q3 board meeting per investor request.',
+          timeline: [
+            { stage: 'Board Decision Approved', date: 'Mar 14, 2026', owner: 'Board vote 2–1', status: 'done', evidence: 'Board resolution recorded (rejected Model B, kept flat-tier)' },
+            { stage: 'Owner Assigned', date: 'Mar 15, 2026', owner: 'Product Team', status: 'done', evidence: 'Task tracker entry' },
+            { stage: 'Tasks Created', date: 'Mar 16, 2026', owner: 'Alex Chen', status: 'done', evidence: '2 linked tasks created' },
+            { stage: 'Execution Started', date: 'Mar 20, 2026', owner: 'Product Team', status: 'done', evidence: 'Flat-tier pricing doc revised' },
+            { stage: 'Completed', date: 'Jun 12, 2026', owner: 'Product Team', status: 'done', evidence: 'Investor deck updated & approved' },
+            { stage: 'Business Impact', date: 'Jun – Jul 2026', owner: 'Finance Module', status: 'done', evidence: 'MRR grew 6% QoQ under flat-tier pricing' },
+          ],
+          executionTracker: [
+            { task: 'Revise Pricing Strategy', owner: 'Product Team', due: 'Jul 8, 2026', priority: 'High', status: 'Completed', progress: 100 },
+            { task: 'Enterprise Rollout', owner: 'Sales', due: 'Jul 30, 2026', priority: 'Medium', status: 'In Progress', progress: 65 },
+            { task: 'Investor Update', owner: 'Founder', due: 'Jul 18, 2026', priority: 'Medium', status: 'Completed', progress: 100 },
+          ],
+          relatedKnowledge: [
+            { type: 'Meeting', title: 'June 12 Board Meeting', meta: 'Approved enterprise tier scope' },
+            { type: 'Decision', title: 'Approve Enterprise Pricing', meta: 'Q3 Board Meeting · pending' },
+            { type: 'Investor Email', title: 'Sarah Kim email thread', meta: 'Mar 18, 2026' },
+            { type: 'Document', title: 'Pricing Model Comparison.xlsx', meta: 'Updated Mar 14' },
+            { type: 'Slack Discussion', title: '#board-prep — pricing thread', meta: '12 replies · Mar 15' },
+            { type: 'Transcript', title: 'March Board Meeting transcript', meta: '58 min' },
+          ],
+          insights: [
+            'This decision influenced 4 later board meetings.',
+            'Revenue improved after implementation.',
+            'One follow-up task remains overdue (Enterprise Rollout).',
+            'Enterprise Launch still depends on this decision.',
+          ],
+          graph: ['Pricing Decision', 'Enterprise Expansion', 'VP Sales Hiring', 'Revenue Growth', 'Series B Planning'],
+        },
+        vpsales: {
+          decision: 'Approve VP Sales Hiring',
+          meeting: 'Q3 Board Meeting (Live)', date: 'July 18, 2026',
+          summary: 'The board approved opening and funding a VP Sales hire to lead the enterprise go-to-market motion, given 3 finalist candidates already in process.',
+          reasoning: 'Enterprise Launch requires senior sales leadership; the hiring search is already 3 weeks delayed against the original plan.',
+          alternatives: 'Promote internally (rejected — no ready candidate), delay hire to Q4 (rejected — blocks Enterprise Launch).',
+          supportedBy: 'Alex Chen, Marcus Webb — approved unanimously.',
+          opposedBy: 'None.',
+          metrics: 'Headcount: 42 → 43 planned. Hiring budget: within approved range.',
+          documents: ['Hiring Pipeline Tracker.xlsx', 'VP Sales Job Requirements.pdf'],
+          investorComment: '"Get this closed before the enterprise launch, not after." — Sarah Kim',
+          emails: 'No related email threads on file.',
+          relatedMeetings: ['June 12 — Hiring plan flagged as at-risk'],
+          linkedTasks: ['Prepare revised hiring plan — HR — Pending Confirmation'],
+          currentStatus: 'Owner: HR Director. In progress — 3 candidates in final rounds, target close Aug 1.',
+          timeline: [
+            { stage: 'Board Decision Approved', date: 'Jul 18, 2026', owner: 'Board vote 3–0', status: 'done', evidence: 'Decision card confirmed live' },
+            { stage: 'Owner Assigned', date: 'Jul 18, 2026', owner: 'HR Director', status: 'done', evidence: 'Assigned during meeting' },
+            { stage: 'Tasks Created', date: 'Jul 18, 2026', owner: 'HR', status: 'done', evidence: '1 linked task created' },
+            { stage: 'Execution Started', date: 'Jul 19, 2026', owner: 'HR', status: 'in_progress', evidence: 'Final-round interviews underway' },
+            { stage: 'Completed', date: '—', owner: '—', status: 'pending', evidence: 'Target: Aug 1, 2026' },
+            { stage: 'Business Impact', date: '—', owner: '—', status: 'pending', evidence: 'Expected to unblock Enterprise Launch' },
+          ],
+          executionTracker: [
+            { task: 'Finalize offer for VP Sales candidate', owner: 'HR', due: 'Aug 1, 2026', priority: 'High', status: 'In Progress', progress: 70 },
+          ],
+          relatedKnowledge: [
+            { type: 'Meeting', title: 'June 12 Board Meeting', meta: 'Hiring plan flagged as at-risk' },
+            { type: 'Decision', title: 'Approve Enterprise Pricing', meta: 'Q3 Board Meeting' },
+            { type: 'Document', title: 'Hiring Pipeline Tracker.xlsx', meta: 'Updated today' },
+          ],
+          insights: [
+            'VP Sales hiring delay may affect Enterprise Launch.',
+            'This decision links to 2 other action items.',
+          ],
+          graph: ['Pricing Decision', 'Enterprise Expansion', 'VP Sales Hiring', 'Revenue Growth', 'Series B Planning'],
+        },
+        expansion: {
+          decision: 'International Expansion — Tabled',
+          meeting: 'March Board Meeting', date: 'March 14, 2026',
+          summary: 'The board discussed entering EU markets but tabled the decision pending clearer unit economics and resolution of the pricing model question.',
+          reasoning: 'Unit economics for EU expansion depend on the final pricing structure, which was still under review at the time.',
+          alternatives: 'Expand immediately with current pricing (rejected — too risky), wait until Series B (considered, deferred).',
+          supportedBy: 'Not voted — tabled by consensus.',
+          opposedBy: 'Not voted — tabled by consensus.',
+          metrics: 'No EU-specific metrics gathered yet.',
+          documents: ['International Expansion Memo (draft)'],
+          investorComment: '"Let\'s get pricing right domestically first." — Marcus Webb',
+          emails: 'No related email threads on file.',
+          relatedMeetings: ['Q3 Board Meeting — flagged again as a strategic topic'],
+          linkedTasks: ['Draft international expansion memo — Alex — Due Jul 17'],
+          currentStatus: 'Still tabled. Scheduled to resurface once the pricing model is finalized.',
+          timeline: [
+            { stage: 'Board Decision Approved', date: 'Mar 14, 2026', owner: 'Board consensus', status: 'done', evidence: 'Board minutes — tabled, not rejected' },
+            { stage: 'Owner Assigned', date: '—', owner: '—', status: 'pending', evidence: 'Not yet assigned' },
+            { stage: 'Tasks Created', date: 'Jul 5, 2026', owner: 'Alex Chen', status: 'in_progress', evidence: 'Memo drafting underway' },
+            { stage: 'Execution Started', date: '—', owner: '—', status: 'pending', evidence: 'Pending pricing resolution' },
+            { stage: 'Completed', date: '—', owner: '—', status: 'pending', evidence: '—' },
+            { stage: 'Business Impact', date: '—', owner: '—', status: 'pending', evidence: 'Blocked until pricing model is finalized' },
+          ],
+          executionTracker: [
+            { task: 'Draft international expansion memo', owner: 'Alex', due: 'Jul 17, 2026', priority: 'Medium', status: 'In Progress', progress: 35 },
+          ],
+          relatedKnowledge: [
+            { type: 'Decision', title: 'Rejected Pricing Model B', meta: 'March Board Meeting' },
+            { type: 'Document', title: 'International Expansion Memo', meta: 'Draft in progress' },
+          ],
+          insights: [
+            'International Expansion depends on the pricing decision.',
+            'This topic has been raised in 2 consecutive meetings without resolution.',
+          ],
+          graph: ['Pricing Decision', 'Enterprise Expansion', 'VP Sales Hiring', 'Revenue Growth', 'Series B Planning'],
+        },
+      },
+      memoryEmptyRelated: [
+        { key: 'pricing', title: 'Why did we reject Pricing Model B?', meta: 'March Board Meeting · Resolved' },
+        { key: 'vpsales', title: 'Who owns VP Sales hiring?', meta: 'Q3 Board Meeting · In progress' },
+        { key: 'expansion', title: 'Show discussions about international expansion.', meta: 'March Board Meeting · Tabled' },
+      ],
+      memoryUnresolved: [
+        { title: 'Enterprise Launch', meta: 'Raised by Alex · targeting July 18', key: 'vpsales' },
+        { title: 'Series B Preparation', meta: 'Owner: Sarah Kim (Blueprint Ventures)', key: 'expansion' },
+        { title: 'Marketing Budget Increase', meta: '$40K/mo → $65K/mo proposed', key: 'pricing' },
+      ],
+      memoryQuickPrompts: [
+        'Show all pricing discussions.',
+        'Which board decisions remain unresolved?',
+        'What strategic risks are emerging?',
+        'Explain why we changed hiring strategy.',
+        'Which action items are overdue?',
+      ],
+    };
+    return this._staticData;
+  }
+
+  componentWillUnmount() {
+    clearInterval(this._gatherTimer);
+    clearInterval(this._meetingTimer);
+    clearInterval(this._transcriptTimer);
+    clearInterval(this._listenTimer);
+  }
+
+  onInputChange = (e) => this.setState({ chatInput: e.target.value });
+
+  onInputKeyDown = (e) => { if (e.key === 'Enter') this.sendMessage(); };
+
+  useSuggestion = (text) => this.setState({ chatInput: text }, () => this.sendMessage());
+
+  goTo = (screen) => {
+    if (!screen) return;
+    this.setState({ currentScreen: screen });
+    if (screen === 'prep') this.startGathering();
+    if (screen === 'meeting') this.startMeeting();
+  };
+
+  startMeeting = () => {
+    clearInterval(this._meetingTimer);
+    clearInterval(this._transcriptTimer);
+    clearInterval(this._listenTimer);
+    this.setState({
+      meetingElapsed: 0, transcriptRevealed: 0, meetingTopicIndex: 0, listeningIndex: 0,
+      decisionStatus: {}, decisionEditing: {}, decisionNotes: {}, actionStatus: {},
+    });
+    this._meetingTimer = setInterval(() => this.setState(s => ({ meetingElapsed: s.meetingElapsed + 1 })), 1000);
+    this._listenTimer = setInterval(() => this.setState(s => ({ listeningIndex: (s.listeningIndex + 1) % 4 })), 2800);
+    const total = this.getStaticData().meetingScript.length;
+    let i = 0;
+    this._transcriptTimer = setInterval(() => {
+      i++;
+      this.setState({ transcriptRevealed: i });
+      if (i >= total) clearInterval(this._transcriptTimer);
+    }, 2200);
+  };
+
+  setMeetingTopic = (i) => this.setState({ meetingTopicIndex: i });
+
+  approveDecision = (id) => this.setState(s => ({ decisionStatus: { ...s.decisionStatus, [id]: 'approved' }, decisionEditing: { ...s.decisionEditing, [id]: false } }));
+  discardDecision = (id) => this.setState(s => ({ decisionStatus: { ...s.decisionStatus, [id]: 'discarded' }, decisionEditing: { ...s.decisionEditing, [id]: false } }));
+  toggleEditDecision = (id) => this.setState(s => ({ decisionEditing: { ...s.decisionEditing, [id]: !s.decisionEditing[id] } }));
+  updateDecisionNote = (id, val) => this.setState(s => ({ decisionNotes: { ...s.decisionNotes, [id]: val } }));
+
+  confirmAction = (id) => this.setState(s => ({ actionStatus: { ...s.actionStatus, [id]: 'confirmed' } }));
+
+  onMemoryInputChange = (e) => this.setState({ memoryQuery: e.target.value });
+  onMemoryInputKeyDown = (e) => { if (e.key === 'Enter') this.runMemorySearch(this.state.memoryQuery); };
+  runMemorySearch = (query) => {
+    const t = (query || '').toLowerCase();
+    let key = 'empty';
+    if (t.includes('pricing') || t.includes('reject')) key = 'pricing';
+    else if (t.includes('expansion') || t.includes('international')) key = 'expansion';
+    else if (t.includes('vp sales') || t.includes('sales hiring') || t.includes('owns vp')) key = 'vpsales';
+    else if (t.includes('unresolved') || t.includes('pending')) key = 'unresolved';
+    this.setState({ memoryQuery: query, memoryResultKey: key });
+  };
+
+  startGathering = () => {
+    clearInterval(this._gatherTimer);
+    this.setState({ prepStep: 1, gatheringRevealed: 0 });
+    let i = 0;
+    this._gatherTimer = setInterval(() => {
+      i++;
+      this.setState({ gatheringRevealed: i });
+      if (i >= 10) {
+        clearInterval(this._gatherTimer);
+        setTimeout(() => this.setState(s => s.prepStep === 1 ? { prepStep: 2 } : null), 800);
+      }
+    }, 420);
+  };
+
+  setPrepStep = (n) => this.setState({ prepStep: n });
+
+  addAgendaItem = () => this.setState(s => ({
+    agendaItems: [...s.agendaItems, { id: s.agendaNextId, title: 'New topic', reason: 'Added manually by founder.' }],
+    agendaNextId: s.agendaNextId + 1,
+  }));
+
+  removeAgendaItem = (id) => this.setState(s => ({ agendaItems: s.agendaItems.filter(a => a.id !== id) }));
+
+  updateAgendaTitle = (id, value) => this.setState(s => ({
+    agendaItems: s.agendaItems.map(a => a.id === id ? { ...a, title: value } : a),
+  }));
+
+  toggleCard = (id) => this.setState(s => ({ expandedCards: { ...s.expandedCards, [id]: !s.expandedCards[id] } }));
+
+  updateDraft = (id, value) => this.setState(s => ({ cardDrafts: { ...s.cardDrafts, [id]: value } }));
+
+  sendMessage = () => {
+    const text = (this.state.chatInput || '').trim();
+    if (!text) return;
+    const reply = this.craftReply(text);
+    this.setState(s => ({
+      chatInput: '',
+      chatMessages: [
+        ...s.chatMessages,
+        { align: 'flex-end', bg: this._accent || '#2563EB', color: '#fff', text },
+        { align: 'flex-start', bg: 'oklch(95% 0.006 262)', color: 'oklch(25% 0.02 262)', text: reply },
+      ],
+    }));
+  };
+
+  craftReply(text) {
+    const t = text.toLowerCase();
+    if (t.includes('pricing')) return "Last quarter you rejected Pricing Model B (usage-based) — the board felt it added sales-cycle friction for mid-market. Decided March 14, owner: Alex. Full doc trail is in Institutional Memory.";
+    if (t.includes('hiring') || t.includes('vp sales')) return "VP Sales search: 3 candidates in final rounds, target close by Aug 1. Senior ML Engineer role is at offer stage with one candidate.";
+    if (t.includes('burn') || t.includes('runway')) return "Burn is $156K/mo, up 8% quarter-over-quarter — mostly infra + 2 new hires. At current pace, runway holds at 18 months.";
+    if (t.includes('decision') || t.includes('decided')) return "Since the last meeting: approved the enterprise tier scope, deferred Series B kickoff to Q4, and tabled the EU expansion pending unit economics.";
+    if (t.includes('why') && t.includes('agenda')) return "Each agenda item is pulled from unresolved topics, board-flagged risks, or discussions your investors asked to revisit — hover the 'Why' note under any topic in Step 3 for its specific reasoning.";
+    if (t.includes('supporting') || t.includes('document')) return "Supporting docs for this pack: Q2 financial model, hiring pipeline tracker, March board minutes, and the investor email thread on pricing. All linked from their respective board pack cards.";
+    if (t.includes('changed')) return "Since June 12: MRR +6%, burn +8%, 4 enterprise deals closed, VP Sales search slipped 3 weeks. 2 action items are still overdue.";
+    if (t.includes('summarize') || t.includes('summary')) return "So far: approved enterprise pricing, VP Sales hiring is progressing (3 finalists), and we clarified the March pricing model decision for Sarah. Burn and international expansion are flagged for follow-up.";
+    if (t.includes('similar') || t.includes('historical')) return "Yes — the AI Pricing Model was last discussed at the March 14 board meeting, where the board rejected the usage-based model. That context was just surfaced live above.";
+    if (t.includes('who owns') || t.includes('owner')) return "The hiring plan action item is owned by HR, due July 20. The VP Sales hiring decision is owned by the HR Director, due July 30.";
+    if (t.includes('document')) return "Relevant documents: Q2 Financial Model.pdf, March Board Minutes.pdf, Pricing Model Comparison.xlsx, and the investor email thread on pricing.";
+    return "Pulling that from meeting notes, decks and Slack threads now — one moment. In the meantime, want me to add this to your board pack?";
+  }
+
+  renderVals() {
+    const accent = this.props.accentColor || '#2563EB';
+    const accentDark = '#1D4ED8';
+    const accentTint = 'color-mix(in oklab, ' + accent + ' 12%, white)';
+    const accentBorder = 'color-mix(in oklab, ' + accent + ' 28%, white)';
+    this._accent = accent;
+
+    const icons = this.getIcons(accent);
+    const sd = this.getStaticData();
+
+    const navDef = [
+      { label: 'Dashboard', badge: '' },
+      { label: 'Prepare Meeting', badge: '' },
+      { label: 'Meeting Workspace', badge: '' },
+      { label: 'Institutional Memory', badge: '' },
+    ];
+    const screenMap = ['dashboard', 'prep', 'meeting', 'memory'];
+    const navItems = navDef.map((n, idx) => {
+      const screen = screenMap[idx];
+      const active = (screen === this.state.currentScreen);
+      return {
+        label: n.label, badge: n.badge, screen,
+        activeColor: active ? accent : 'oklch(38% 0.01 260)',
+        activeBg: active ? accentTint : 'transparent',
+        iconOpacity: active ? 1 : 0.55,
+        iconHtml: icons.navIcon,
+        onClick: () => this.goTo(screen),
+      };
+    });
+
+    const decisions = sd.decisions;
+    const actionItems = sd.actionItems;
+    const insights = sd.insights;
+    const topics = sd.topics;
+    const attendees = sd.attendees;
+
+    const mkPrompt = (label) => ({ label, onClick: () => this.useSuggestion(label) });
+    const suggestedPrompts = ["What did we decide on pricing?", "Hiring pipeline status?", "Why is burn up?"].map(mkPrompt);
+
+    const briefSummary = sd.briefSummary;
+    const briefChanges = sd.briefChanges;
+    const briefAttention = sd.briefAttention;
+
+    const readinessRows = [
+      { label: 'Agenda', pct: 90, color: '#22C55E' },
+      { label: 'Metrics', pct: 55, color: '#F59E0B' },
+      { label: 'Documents', pct: 70, color: accent },
+      { label: 'Approvals', pct: 40, color: '#EF4444' },
+    ];
+    const readinessOverall = Math.round(readinessRows.reduce((s, r) => s + r.pct, 0) / readinessRows.length);
+
+    const quickShortcuts = ['Last decision', 'Pricing rationale', 'Hiring status', 'Burn trend'].map(mkPrompt);
+
+    const recentDecisions = [
+      { title: 'Approved enterprise tier scope', date: 'Jun 12', meta: 'Board vote 3-0' },
+      { title: 'Deferred Series B kickoff to Q4', date: 'Jun 12', meta: 'Owner: Alex' },
+      { title: 'Rejected Pricing Model B (usage-based)', date: 'Mar 14', meta: 'Owner: Alex' },
+    ].map(d => ({ ...d, onClick: () => this.useSuggestion(d.title) }));
+
+    const previousDiscussions = [
+      { topic: 'International Expansion', date: 'Mar 14', note: 'Tabled pending unit economics' },
+      { topic: 'AI Pricing Model', date: 'Jun 12', note: 'Revisiting per investor request' },
+    ].map(d => ({ ...d, onClick: () => this.useSuggestion(d.topic) }));
+
+    // ---------- Screen 2: AI Board Preparation ----------
+    const isDashboard = this.state.currentScreen === 'dashboard';
+    const isPrep = this.state.currentScreen === 'prep';
+    const isMeeting = this.state.currentScreen === 'meeting';
+    const isMemory = this.state.currentScreen === 'memory';
+    const showStandardScroll = isDashboard || isPrep || isMemory;
+    const rootScreenLabel = isPrep ? '02 · AI Board Preparation' : (isMeeting ? '03 · Live Board Meeting' : (isMemory ? '04 · Institutional Memory' : '01 · Dashboard'));
+
+    const goToPrep = () => this.goTo('prep');
+    const goToDashboard = () => this.goTo('dashboard');
+    const goStep3 = () => this.setPrepStep(3);
+    const goStep4 = () => this.setPrepStep(4);
+    const goStep5 = () => this.setPrepStep(5);
+
+    const revealed = this.state.gatheringRevealed || 0;
+    const gatheringItems = sd.gatheringDef.map((g, i) => {
+      let status = i < revealed ? g.final : (i === revealed ? 'in_progress' : 'pending');
+      const map = {
+        collected: { icon: icons.checkGreen, statusLabel: 'Collected', statusColor: '#16A34A' },
+        needs_review: { icon: icons.warnIcon, statusLabel: 'Needs Review', statusColor: '#D97706' },
+        waiting: { icon: icons.warnIcon, statusLabel: g.confidence ? g.confidence + '% Confidence' : 'Waiting', statusColor: '#DC2626' },
+        in_progress: { icon: icons.spinnerIcon, statusLabel: 'In Progress', statusColor: accent },
+        pending: { icon: icons.pendingIcon, statusLabel: 'Queued', statusColor: 'oklch(65% 0.005 90)' },
+      };
+      const m = map[status];
+      const showReason = status !== 'pending' && status !== 'in_progress' && !!g.reason;
+      return {
+        label: g.label, source: g.source, icon: m.icon, statusLabel: m.statusLabel, statusColor: m.statusColor,
+        showReason, reason: g.reason, recommendation: g.recommendation,
+      };
+    });
+
+    const gatheringDone = revealed >= 10;
+    const showBoardPackPreview = this.state.prepStep > 1;
+    const boardPackPreviewRows = sd.boardPackPreview.map(b => {
+      const iconMap = { 'Generated': icons.checkGreen, 'Needs Review': icons.warnIcon, 'Updated Recently': icons.checkAccent };
+      const colorMap = { 'Generated': '#16A34A', 'Needs Review': '#D97706', 'Updated Recently': accent };
+      return { ...b, icon: iconMap[b.status], color: colorMap[b.status] };
+    });
+    const prepStep = this.state.prepStep;
+    const prepSteps = sd.stepDefs.map((s, i) => {
+      const done = s.n < prepStep || (s.n === 1 && gatheringDone && prepStep > 1);
+      const active = s.n === prepStep;
+      return {
+        n: s.n, label: s.label,
+        done, notDone: !done,
+        bg: done ? '#22C55E' : (active ? accentTint : 'oklch(95% 0.005 90)'),
+        fg: done ? '#fff' : (active ? accent : 'oklch(55% 0.01 260)'),
+        border: done ? '#22C55E' : (active ? accent : 'oklch(88% 0.005 90)'),
+        labelColor: active ? 'oklch(20% 0.01 260)' : 'oklch(55% 0.01 260)',
+        showLine: i < sd.stepDefs.length - 1,
+        lineColor: done ? '#22C55E' : 'oklch(90% 0.005 90)',
+        onClick: () => this.setPrepStep(s.n),
+      };
+    });
+
+    const analysisItems = sd.analysisItems;
+
+    const agendaItems = this.state.agendaItems.map((a, i) => ({
+      ...a, n: i + 1,
+      onTitleChange: (e) => this.updateAgendaTitle(a.id, e.target.value),
+      onRemove: () => this.removeAgendaItem(a.id),
+    }));
+
+    const boardPackCards = sd.boardPackDefs.map(c => {
+      const expanded = !!this.state.expandedCards[c.id];
+      const confColor = c.confidence >= 85 ? '#16A34A' : (c.confidence >= 65 ? '#D97706' : '#DC2626');
+      return {
+        ...c, expanded, confColor,
+        toggleLabel: expanded ? 'Hide Draft' : 'Edit',
+        draftText: this.state.cardDrafts[c.id] ?? c.snippet,
+        onToggle: () => this.toggleCard(c.id),
+        onDraftChange: (e) => this.updateDraft(c.id, e.target.value),
+      };
+    });
+
+    const prepReadinessRows = sd.prepReadinessDefs.map(r => ({
+      ...r,
+      icon: r.actionable ? icons.warnIcon : icons.checkGreen,
+    }));
+    const prepReadinessScore = 95;
+    const circumference = 264;
+    const readinessDashOffset = circumference - (circumference * prepReadinessScore / 100);
+
+    const isStep1 = prepStep === 1, isStep2 = prepStep === 2, isStep3 = prepStep === 3, isStep4 = prepStep === 4, isStep5 = prepStep === 5;
+
+    const prepFindings = sd.prepFindings;
+    const prepQuickPrompts = ["Why is this agenda item included?", "Show supporting documents", "What changed since last meeting?"].map(mkPrompt);
+    const sidebarSubtitle = isPrep ? 'Preparation Assistant · live' : (isMeeting ? 'Live meeting copilot' : (isMemory ? 'Institutional memory · searchable' : 'Always on · knows everything'));
+
+    // ---------- Screen 3: Live Board Meeting ----------
+    const meetingElapsed = this.state.meetingElapsed || 0;
+    const meetingElapsedLabel = String(Math.floor(meetingElapsed / 60)).padStart(2, '0') + ':' + String(meetingElapsed % 60).padStart(2, '0');
+
+    const listeningIndex = this.state.listeningIndex || 0;
+    const listeningStates = sd.listeningLabels.map((label, i) => {
+      const active = i === listeningIndex;
+      return {
+        label,
+        bg: active ? accent : 'oklch(95% 0.005 90)',
+        color: active ? '#fff' : 'oklch(48% 0.01 260)',
+        dotColor: active ? '#fff' : 'oklch(70% 0.005 90)',
+        animation: active ? 'pulseDot 1.2s ease-in-out infinite' : 'none',
+      };
+    });
+
+    const meetingTopicIndex = this.state.meetingTopicIndex || 0;
+    const meetingAgendaRows = sd.meetingAgenda.map((title, i) => {
+      const current = i === meetingTopicIndex;
+      const done = i < meetingTopicIndex;
+      return {
+        title,
+        bg: current ? accentTint : 'transparent',
+        color: current ? 'oklch(20% 0.02 260)' : (done ? 'oklch(55% 0.01 260)' : 'oklch(40% 0.01 260)'),
+        weight: current ? 700 : 500,
+        icon: done ? icons.checkGreen : (current ? icons.currentDotIcon : icons.futureDotIcon),
+        onClick: () => this.setMeetingTopic(i),
+      };
+    });
+    const currentTopicTitle = sd.meetingAgenda[meetingTopicIndex];
+    const upcomingTopics = sd.meetingAgenda.slice(meetingTopicIndex + 1);
+    const meetingParticipants = sd.meetingParticipants;
+
+    const transcriptRevealed = this.state.transcriptRevealed || 0;
+    const decisionStatus = this.state.decisionStatus || {};
+    const decisionEditing = this.state.decisionEditing || {};
+    const decisionNotes = this.state.decisionNotes || {};
+    const actionStatus = this.state.actionStatus || {};
+
+    const transcriptEvents = sd.meetingScript.slice(0, transcriptRevealed).map((ev, idx) => {
+      if (ev.type === 'line') {
+        return { key: idx, isLine: true, isDecision: false, isAction: false, isAnswer: false, ...ev };
+      }
+      if (ev.type === 'question') {
+        return {
+          key: idx, isLine: true, isDecision: false, isAction: false, isAnswer: false,
+          speaker: ev.speaker, role: ev.role, initials: ev.initials, avatarColor: ev.avatarColor, time: ev.time, text: ev.text,
+          _followUp: ev,
+        };
+      }
+      if (ev.type === 'decision') {
+        const status = decisionStatus[ev.id] || 'pending';
+        const confColor = ev.confidence >= 90 ? '#16A34A' : (ev.confidence >= 70 ? '#D97706' : '#DC2626');
+        const statusMap = {
+          pending: { label: 'Awaiting Founder Review', color: '#D97706' },
+          approved: { label: 'Approved', color: '#16A34A' },
+          discarded: { label: 'Discarded', color: 'oklch(55% 0.01 260)' },
+        };
+        return {
+          key: idx, isLine: false, isDecision: true, isAction: false, isAnswer: false,
+          title: ev.title, owner: ev.owner, due: ev.due, source: ev.source, confidence: ev.confidence, confColor,
+          statusLabel: statusMap[status].label, statusColor: statusMap[status].color,
+          borderColor: status === 'approved' ? '#22C55E' : (status === 'discarded' ? 'oklch(88% 0.005 90)' : accentBorder),
+          cardBg: status === 'discarded' ? 'oklch(97% 0.003 90)' : '#fff',
+          showActions: status === 'pending',
+          showEditor: !!decisionEditing[ev.id],
+          note: decisionNotes[ev.id] ?? '',
+          onApprove: () => this.approveDecision(ev.id),
+          onDiscard: () => this.discardDecision(ev.id),
+          onEdit: () => this.toggleEditDecision(ev.id),
+          onNoteChange: (e) => this.updateDecisionNote(ev.id, e.target.value),
+        };
+      }
+      if (ev.type === 'action') {
+        const status = actionStatus[ev.id] || 'pending';
+        const priorityColors = { High: { c: '#DC2626', bg: 'oklch(94% 0.04 30)' }, Medium: { c: '#D97706', bg: 'oklch(94% 0.04 70)' }, Low: { c: '#16A34A', bg: 'oklch(94% 0.04 145)' } };
+        const pc = priorityColors[ev.priority] || priorityColors.Medium;
+        return {
+          key: idx, isLine: false, isDecision: false, isAction: true, isAnswer: false,
+          title: ev.title, owner: ev.owner, due: ev.due, priority: ev.priority,
+          priorityColor: pc.c, priorityBg: pc.bg,
+          statusLabel: status === 'confirmed' ? 'Confirmed' : 'Pending Confirmation',
+          statusColor: status === 'confirmed' ? '#16A34A' : '#D97706',
+          showConfirm: status !== 'confirmed',
+          onConfirm: () => this.confirmAction(ev.id),
+        };
+      }
+      return null;
+    }).filter(Boolean);
+
+    // insert the AI instant-answer card right after a question line
+    const expandedEvents = [];
+    sd.meetingScript.slice(0, transcriptRevealed).forEach((ev, idx) => {
+      const built = transcriptEvents.find(e => e.key === idx);
+      if (!built) return;
+      expandedEvents.push(built);
+      if (ev.type === 'question') {
+        expandedEvents.push({
+          key: idx + '-answer', isLine: false, isDecision: false, isAction: false, isAnswer: true,
+          fields: ev.answer,
+        });
+      }
+    });
+
+    const liveSuggestions = sd.liveSuggestionDefs.filter(d => transcriptRevealed >= d.at).map(d => d.text);
+    const meetingRecentContext = sd.meetingRecentContext.map(d => ({ ...d, onClick: () => this.useSuggestion(d.title) }));
+    const meetingSupportingDocs = sd.meetingSupportingDocs.map(name => ({ name, icon: icons.docIcon }));
+    const meetingQuickPrompts = ["What did we decide in March?", "Show supporting document.", "Who owns this action item?", "Summarize discussion so far.", "Any similar historical discussions?"].map(mkPrompt);
+
+    const revealedDecisionEvents = expandedEvents.filter(e => e.isDecision);
+    const revealedActionEvents = expandedEvents.filter(e => e.isAction);
+    const summaryDecisions = revealedDecisionEvents.filter(e => e.statusLabel !== 'Discarded').map(e => e.title);
+    const summaryActions = revealedActionEvents.map(e => e.title + ' — ' + e.owner);
+    const summaryPendingVotes = revealedDecisionEvents.filter(e => e.statusLabel === 'Awaiting Founder Review').map(e => e.title);
+    const summaryOpenQuestions = ["Should international expansion proceed before pricing is finalized?"];
+    const summaryRisks = ["Burn increasing faster than revenue this quarter.", "VP Sales hiring delay may affect Enterprise Launch timeline."];
+
+    // ---------- Screen 4: Institutional Memory ----------
+    const runMemorySearchFromInput = () => this.runMemorySearch(this.state.memoryQuery);
+    const memoryChipItems = sd.memoryChips.map(label => ({ label, onClick: () => this.runMemorySearch(label) }));
+    const memorySidebarPrompts = sd.memoryQuickPrompts.map(label => ({ label, onClick: () => this.runMemorySearch(label) }));
+
+    const memoryResultKey = this.state.memoryResultKey;
+    const showMemoryEmpty = memoryResultKey === 'empty';
+    const showMemoryList = memoryResultKey === 'unresolved';
+    const showMemoryDecision = !!memoryResultKey && sd.memoryDB[memoryResultKey];
+
+    const memoryEmptyRelated = sd.memoryEmptyRelated.map(r => ({ ...r, onClick: () => this.setState({ memoryResultKey: r.key, memoryQuery: r.title }) }));
+    const memoryUnresolvedRows = sd.memoryUnresolved.map(r => ({ ...r, onClick: () => this.setState({ memoryResultKey: r.key, memoryQuery: r.title }) }));
+
+    let memoryResult = null, memoryAnswerCards = [], memoryTimeline = [], memoryTracker = [], memoryRelatedKnowledge = [], memoryInsights = [], memoryGraphNodes = [];
+
+    if (showMemoryDecision) {
+      memoryResult = sd.memoryDB[memoryResultKey];
+      memoryAnswerCards = [
+        { label: 'Summary', isText: true, value: memoryResult.summary },
+        { label: 'Reasoning', isText: true, value: memoryResult.reasoning },
+        { label: 'Alternatives Considered', isText: true, value: memoryResult.alternatives },
+        { label: 'Who Supported', isText: true, value: memoryResult.supportedBy },
+        { label: 'Who Opposed', isText: true, value: memoryResult.opposedBy },
+        { label: 'Supporting Metrics', isText: true, value: memoryResult.metrics },
+        { label: 'Supporting Documents', isList: true, list: memoryResult.documents },
+        { label: 'Investor Comments', isQuote: true, value: memoryResult.investorComment },
+        { label: 'Related Emails', isText: true, value: memoryResult.emails },
+        { label: 'Related Meetings', isList: true, list: memoryResult.relatedMeetings },
+        { label: 'Linked Tasks', isList: true, list: memoryResult.linkedTasks },
+        { label: 'Current Status', isStatus: true, value: memoryResult.currentStatus },
+      ];
+
+      memoryTimeline = memoryResult.timeline.map((tl, i, arr) => ({
+        ...tl,
+        isDone: tl.status === 'done',
+        titleColor: tl.status === 'pending' ? 'oklch(60% 0.01 260)' : 'oklch(20% 0.01 260)',
+        dotBg: tl.status === 'done' ? '#22C55E' : (tl.status === 'in_progress' ? accentTint : '#fff'),
+        dotBorder: tl.status === 'done' ? '#22C55E' : (tl.status === 'in_progress' ? accent : 'oklch(85% 0.005 90)'),
+        showConnector: i < arr.length - 1,
+        connectorColor: tl.status === 'done' ? '#22C55E' : 'oklch(88% 0.005 90)',
+      }));
+
+      memoryTracker = memoryResult.executionTracker.map(et => {
+        const priorityColors = { High: { c: '#DC2626', bg: 'oklch(94% 0.04 30)' }, Medium: { c: '#D97706', bg: 'oklch(94% 0.04 70)' }, Low: { c: '#16A34A', bg: 'oklch(94% 0.04 145)' } };
+        const pc = priorityColors[et.priority] || priorityColors.Medium;
+        const statusColor = et.status === 'Completed' ? '#16A34A' : (et.status === 'In Progress' ? accent : 'oklch(55% 0.01 260)');
+        return { ...et, priorityColor: pc.c, priorityBg: pc.bg, statusColor };
+      });
+
+      memoryRelatedKnowledge = memoryResult.relatedKnowledge;
+      memoryInsights = memoryResult.insights;
+      memoryGraphNodes = memoryResult.graph.map((label, i, arr) => ({ label, showArrow: i < arr.length - 1 }));
+    }
+
+    return {
+      accent, accentDark, accentTint, accentBorder,
+      todayLabel: 'Sunday, July 5',
+      daysUntil: 13,
+      navItems,
+      decisions,
+      actionItems,
+      showInsights: this.props.showInsights ?? true,
+      insights,
+      topics,
+      attendees,
+      chatMessages: this.state.chatMessages,
+      chatInput: this.state.chatInput,
+      onInputChange: this.onInputChange,
+      onInputKeyDown: this.onInputKeyDown,
+      sendMessage: this.sendMessage,
+      useSuggestion: this.useSuggestion,
+      suggestedPrompts,
+      sparkleIcon: icons.sparkleIcon,
+      sparkleIconSm: icons.sparkleIconSm,
+      sparkleIconAccent: icons.sparkleIconAccent,
+      sparkleIconWhite: icons.sparkleIconWhite,
+      briefSummary, briefChanges, briefAttention,
+      readinessRows, readinessOverall,
+      quickShortcuts, recentDecisions, previousDiscussions,
+      sendIcon: icons.sendIcon,
+      isDashboard, isPrep, rootScreenLabel,
+      goTo: this.goTo, setPrepStep: this.setPrepStep,
+      goToPrep, goToDashboard, goStep3, goStep4, goStep5,
+      backIcon: icons.backIcon, checkIconSm: icons.checkWhite,
+      gatheringItems, prepSteps,
+      showBoardPackPreview, boardPackPreviewRows,
+      isStep1, isStep2, isStep3, isStep4, isStep5,
+      analysisItems,
+      agendaItems, addAgendaItem: this.addAgendaItem, removeAgendaItem: this.removeAgendaItem, updateAgendaTitle: this.updateAgendaTitle,
+      boardPackCards, toggleCard: this.toggleCard, updateDraft: this.updateDraft,
+      prepReadinessRows, prepReadinessScore, readinessDashOffset,
+      prepFindings, prepQuickPrompts, sidebarSubtitle,
+      isMeeting, showStandardScroll,
+      meetingElapsedLabel, listeningStates,
+      meetingAgendaRows, currentTopicTitle, upcomingTopics, meetingParticipants,
+      transcriptEvents: expandedEvents,
+      liveSuggestions, meetingRecentContext, meetingSupportingDocs, meetingQuickPrompts,
+      summaryDecisions, summaryDecisionsEmpty: summaryDecisions.length === 0,
+      summaryOpenQuestions, summaryRisks,
+      summaryActions, summaryActionsEmpty: summaryActions.length === 0,
+      summaryPendingVotes, summaryPendingEmpty: summaryPendingVotes.length === 0,
+      isMemory,
+      memoryQuery: this.state.memoryQuery,
+      onMemoryInputChange: this.onMemoryInputChange,
+      onMemoryInputKeyDown: this.onMemoryInputKeyDown,
+      runMemorySearchFromInput,
+      searchIcon: icons.searchIcon,
+      memoryChipItems, memorySidebarPrompts,
+      showMemoryEmpty, showMemoryList, showMemoryDecision,
+      memoryEmptyRelated, memoryUnresolvedRows,
+      memoryResult, memoryAnswerCards, memoryTimeline, memoryTracker, memoryRelatedKnowledge, memoryInsights, memoryGraphNodes,
+    };
+  }
+}
+</script>
+</body>
+</html>
