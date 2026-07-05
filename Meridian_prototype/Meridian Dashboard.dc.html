@@ -26,7 +26,9 @@
   <!-- LEFT NAV -->
   <div style="width:clamp(184px, 15vw, 232px); flex:none; border-right:1px solid oklch(90% 0.005 90); display:flex; flex-direction:column; padding:20px 14px; gap:4px; background:oklch(99% 0.003 90);">
     <div style="display:flex; align-items:center; gap:9px; padding:6px 8px 18px;">
-      <div style="width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg, {{ accent }}, {{ accentDark }}); flex:none;"></div>
+      <div style="width:26px; height:26px; border-radius:7px; background:linear-gradient(135deg, {{ accent }}, {{ accentDark }}); flex:none; display:flex; align-items:center; justify-content:center;">
+        <span style="width:13px; height:13px;" dangerouslySetInnerHTML="{{ sparkleIconWhite }}"></span>
+      </div>
       <div style="font-family:'Inter Tight',sans-serif; font-weight:700; font-size:15px; letter-spacing:-0.01em;">Meridian</div>
     </div>
 
@@ -60,7 +62,9 @@
       <div style="background:#fff; border:1px solid oklch(91% 0.005 90); border-radius:14px; padding:20px 22px; margin-bottom:20px; box-shadow:0 1px 2px rgba(0,0,0,.03);">
         <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
           <div style="display:flex; align-items:center; gap:8px; min-width:0;">
-            <span style="width:16px; height:16px; flex:none;" dangerouslySetInnerHTML="{{ sparkleIconAccent }}"></span>
+            <div style="width:24px; height:24px; border-radius:7px; background:linear-gradient(135deg, {{ accent }}, {{ accentDark }}); display:flex; align-items:center; justify-content:center; flex:none;">
+              <span style="width:12px; height:12px;" dangerouslySetInnerHTML="{{ sparkleIconWhite }}"></span>
+            </div>
             <div style="font-family:'Inter Tight',sans-serif; font-size:clamp(16px, 1.6vw, 18px); font-weight:700; letter-spacing:-0.01em;">Meridian Daily Brief</div>
           </div>
           <div style="display:flex; align-items:center; gap:8px; padding:7px 12px; border:1px solid oklch(90% 0.005 90); border-radius:9px; font-size:12.5px; color:oklch(45% 0.01 260); white-space:nowrap; flex-shrink:0;">
