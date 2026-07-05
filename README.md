@@ -16,7 +16,7 @@ Built using a vibe-coding tool. UI/UX and navigation only — no backend.
 
 This repository contains all deliverables for the Getway AI pre-internship PM assignment focused on designing a **Board Management module** for Meridian — an AI-first operating system for startups.
 
-The goal was to deeply understand the problem space, identify the highest-value use cases, define an MVP, and build a clickable prototype.
+The objective was to evaluate whether Meridian should build a Board Management module, identify the highest-value founder problems, define an MVP, and validate the proposed experience through an interactive prototype.
 
 ---
 
@@ -159,8 +159,10 @@ The live prototype demonstrates:
 
 ## 👤 About
 
-**Devguru Tiwari**  
-Pre-Internship PM Assignment — Getway AI  
-Module: Board Management Feature for Meridian
+**Pre-Internship Product Assignment**
+
+Getway AI
+
+**Author:** Devguru Tiwari
 
 *All documents represent original PM work including market research, competitive analysis, user journey mapping, prioritization, PRD writing, roadmap design, and prototype development.*
