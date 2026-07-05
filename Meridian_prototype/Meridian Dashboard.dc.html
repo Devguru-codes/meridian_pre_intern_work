@@ -244,7 +244,7 @@
               <sc-if value="{{ s.notDone }}">{{ s.n }}</sc-if>
             </div>
             <div style="font-size:clamp(10px, 1.3vw, 11.5px); font-weight:600; color:{{ s.labelColor }}; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0;">{{ s.label }}</div>
-            <sc-if value="{{ s.showLine }}"><div style="flex:1; height:1.5px; background:{{ s.lineColor }}; margin-left:8px;"></div></sc-if>
+            <div style="flex:1; display:flex; align-items:center; margin-left:8px;"><sc-if value="{{ s.showLine }}"><div style="flex:1; height:1.5px; background:{{ s.lineColor }};"></div></sc-if></div>
           </div>
         </sc-for>
       </div>
