@@ -8,8 +8,7 @@
 
 > **[▶ View Interactive Prototype](https://devguru-codes.github.io/meridian_pre_intern_work/)**
 
-Built using a vibe-coding tool. UI/UX and navigation only — no backend.
-
+Interactive high-fidelity prototype built to validate the proposed user experience. The prototype focuses on product workflows and UI rather than backend implementation.
 ---
 
 ## 📋 Assignment Overview
